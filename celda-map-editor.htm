@@ -1,24 +1,19 @@
 <!DOCTYPE html>
 <html>
-<body>
-<html>
-<script language="javascript" src="impl.js"/> </script> 
-<head>
-    <title>Page Title</title>
-</head>
-
-<body onload="miCanvas.funcionDeDibujo()">
- 
-	<canvas id="micanvas" width="miCanvas.getWitdh()" height="miCanvas.getHeight()">
-		Este texto se muestra para los navegadores no compatibles con canvas.
-		<br>
-		Por favor, utiliza Firefox, Chrome, Safari u Opera.
-	</canvas>
-	<form>
-		Anchura: <input id="width" type="text" name="width"><br>
-		Altura: <input id="height" type="text" name="height"><br>
-		<input type="button" value="Submit" onClick="miCanvas.cargarValores()">
-	</form>
-
-</body>
+  <head>
+    <title>CELDA</title>
+  </head>
+  <body onload="miCanvas.funcionDeDibujo()">
+    <canvas id="micanvas" width="miCanvas.getWitdh()" height="miCanvas.getHeight()">
+  		Este texto se muestra para los navegadores no compatibles con canvas.
+  		<br>
+  		Por favor, utiliza Firefox, Chrome, Safari u Opera.
+  	</canvas>
+  	<form>
+  		Anchura: <input id="width" type="text" name="width"><br>
+  		Altura: <input id="height" type="text" name="height"><br>
+  		<input type="button" value="Submit" onClick="miCanvas.cargarValores()">
+  	</form>
+  	<script src="impl.js"/></script> 
+  </body>
 </html>
