@@ -15,8 +15,8 @@ var dvCell = function(id, x, y, map)
 
 var dvMap = function()
 {
-	this.cellWidth = 30;
-	this.cellHeight = 30;	
+	this.cellWidth = 8;
+	this.cellHeight = 5;
 	this.cellSide = 20;
 	this.obstacles = null;
 	
@@ -157,6 +157,7 @@ var dvMap = function()
 	    
 	    if (cell.id == endCell.id)
 	    {
+		  console.log(queuedBy);
 	      return queuedBy;;
 	    }
 	    
@@ -177,6 +178,7 @@ var dvMap = function()
 	    }	    
 	  }
 	  
+	  console.log(queuedBy);
 	  return queuedBy;
 	}
 	
@@ -185,25 +187,25 @@ var dvMap = function()
 	  aux = new Array();
 	  
 	  // Top-left
-	  aux.push(this.getCellByRowCol(aCell.row - 1, aCell.column - 1));
+	  //aux.push(this.getCellByRowCol(aCell.row - 1, aCell.column - 1));
 	  
 	  // Top
 	  aux.push(this.getCellByRowCol(aCell.row - 1, aCell.column));
 	  
 	  // Top-right
-	  aux.push(this.getCellByRowCol(aCell.row - 1, aCell.column + 1));
+	  //aux.push(this.getCellByRowCol(aCell.row - 1, aCell.column + 1));
 	  
 	  // Right
 	  aux.push(this.getCellByRowCol(aCell.row, aCell.column + 1));
 	  
 	  // Bottom-right
-	  aux.push(this.getCellByRowCol(aCell.row + 1, aCell.column + 1));
+	  //aux.push(this.getCellByRowCol(aCell.row + 1, aCell.column + 1));
 	  
 	  // Bottom
 	  aux.push(this.getCellByRowCol(aCell.row + 1, aCell.column));
 	  
 	  // Bottom-left
-	  aux.push(this.getCellByRowCol(aCell.row + 1, aCell.column - 1));
+	  //aux.push(this.getCellByRowCol(aCell.row + 1, aCell.column - 1));
 	  
 	  // Left
 	  aux.push(this.getCellByRowCol(aCell.row, aCell.column - 1));
@@ -237,8 +239,9 @@ var dvMap = function()
 	this.getCellById = function(id)
 	{		
 		x = (id % this.cellWidth) * this.cellSide;
-		y = Math.floor(id / this.cellHeight) * this.cellSide;
-		
+		//TODO Aca si cellWidth se cambia por cellHeight se genera el bug que fue corregido.
+		y = Math.floor(id / this.cellWidth) * this.cellSide;
+		//console.log("->" + x);
 		return new dvCell(id, x, y, this);
 	}
 	
@@ -330,7 +333,6 @@ var dvMap = function()
 		
 		resolveButton.appendTo(container);
 	}
-	
 	this.canvas.on('click', function(event)
 	{
 		aCell = aMap.getCellByPosition(event.pageX, event.pageY);
@@ -371,16 +373,21 @@ var aMap;
 jQuery(document).ready(function()
 {
 	aMap = new dvMap();
-	
+
 	aMap.appendTo(jQuery('body'));
+
 	aMap.draw();
+
 });
+
+
 
 /* ToDo - BEGIN
 
   last update: 20140604
 
 - Permitir mapas rectangulares, hay un bug al generarlo.
+	-> Ahora genera rectangulares, pero en rutas esquinadas no encuentra path.
 - Acomodar la clase dvMap, quedó muy compleja.
 - Tratar de sacar las variables globales, para que el código sea más independiente.
 - Agregar costos a los movimientos, para que el recorrido sea el óptimo.
@@ -390,4 +397,3 @@ jQuery(document).ready(function()
 - Agregar mayor autonomía a las celdas.
 
   ToDo - END */
-
