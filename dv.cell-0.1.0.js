@@ -15,9 +15,9 @@ var dvCell = function(id, x, y, map)
 
 var dvMap = function()
 {
-	this.cellWidth = 8;
-	this.cellHeight = 5;
-	this.cellSide = 20;
+	this.cellWidth = 10;
+	this.cellHeight = 10;
+	this.cellSide = 25;
 	this.obstacles = null;
 	
 	this.isObstacle = function(id)
@@ -97,11 +97,10 @@ var dvMap = function()
 		}
 		
 		this.resolveMode();
-		
 		queuedBy = this.buildPath(this.startCell, this.endCell);
 	  
 	  if (queuedBy[this.endCell.id] == -1)
-	  {
+	  {	
 		  alert('No path!');
 	  }
 	  else
@@ -116,9 +115,9 @@ var dvMap = function()
 	      
 	      cell = queuedBy[cell.id];
 	    }
-	    
+
 	    path = path.reverse();
-	    
+
 	    i = 0;
 	    
 	    window.setInterval(function()
@@ -134,6 +133,7 @@ var dvMap = function()
 	        window.setInterval(null);
 	      }
 	    }, 200); 		  
+		return path;
 	  }
 	}
 	
@@ -144,7 +144,7 @@ var dvMap = function()
 	  queuedBy = new Array();
 	  
 	  for (i = 0; i < this.countCells(); i++)
-	  {
+	  {	
 	    visited.push(false);
 	    queuedBy.push(-1);
 	  }
@@ -157,7 +157,7 @@ var dvMap = function()
 	    
 	    if (cell.id == endCell.id)
 	    {
-		  console.log(queuedBy);
+		  //console.log(queuedBy);
 	      return queuedBy;;
 	    }
 	    
@@ -174,11 +174,11 @@ var dvMap = function()
     	    queuedBy[neighbour.id] = cell;
     	    
 	        queue.push(neighbour);
+
 	      }	    	        
 	    }	    
 	  }
 	  
-	  console.log(queuedBy);
 	  return queuedBy;
 	}
 	
@@ -219,7 +219,7 @@ var dvMap = function()
 	      neighbours.push(aux[i]);
 	    }
 	  }
-	  
+
 	  return neighbours;
 	}
 	
@@ -318,21 +318,29 @@ var dvMap = function()
 		this.addObstacle(aCell);
 	}
 	
-	this.appendTo = function(container)
+	this.appendTo = function(container, map)
 	{
 		this.canvas.appendTo(container);
 		
-		resolveButton = jQuery('<div><button>Resolve!</button></div>');
-		
+		resolveButton = jQuery('<div><button>Construir camino!</button></div>');
+		var path;
+		var arrayPath = new Array();
+		var myJsonString;
 		resolveButton.on('click', function(event)
 		{
 			event.preventDefault();
-			
-			aMap.resolve();
+
+			indexArray = 0;
+			path = aMap.resolve();
+
+			myJsonString = JSON.stringify(path);
+			console.log(myJsonString);
 		});
-		
+
 		resolveButton.appendTo(container);
+
 	}
+
 	this.canvas.on('click', function(event)
 	{
 		aCell = aMap.getCellByPosition(event.pageX, event.pageY);
@@ -374,13 +382,11 @@ jQuery(document).ready(function()
 {
 	aMap = new dvMap();
 
-	aMap.appendTo(jQuery('body'));
+	aMap.appendTo(jQuery('body'), aMap);
 
 	aMap.draw();
 
 });
-
-
 
 /* ToDo - BEGIN
 
