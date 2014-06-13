@@ -380,7 +380,7 @@ jQuery(document).ready(function()
 {
 	aMap = new dvMap();
 
-	aMap.appendTo(jQuery('body'), aMap);
+	aMap.appendTo(jQuery('body'));
 
 	aMap.draw();
 
