@@ -318,19 +318,17 @@ var dvMap = function()
 		this.addObstacle(aCell);
 	}
 	
-	this.appendTo = function(container, map)
+	this.appendTo = function(container)
 	{
 		this.canvas.appendTo(container);
 		
 		resolveButton = jQuery('<div><button>Construir camino!</button></div>');
 		var path;
-		var arrayPath = new Array();
 		var myJsonString;
 		resolveButton.on('click', function(event)
 		{
 			event.preventDefault();
 
-			indexArray = 0;
 			path = aMap.resolve();
 
 			myJsonString = JSON.stringify(path);
