@@ -325,14 +325,25 @@ var dvMap = function()
 		resolveButton = jQuery('<div><button>Construir camino!</button></div>');
 		var path;
 		var myJsonString;
+		var pathJSON = new Array();
 		resolveButton.on('click', function(event)
 		{
-			event.preventDefault();
+			//Si ya construi un camino
+			if (path != null){
+				for (i=0;i<path.length;i++){
+					pathJSON.push(path[i].id);
+					//console.log(path[i].id);
+				}
+				myJsonString = JSON.parse(JSON.stringify(pathJSON));	
+				console.log(myJsonString);
+			}
+			//Sino construyo el camino
+			else {
+				event.preventDefault();
 
-			path = aMap.resolve();
+				path = aMap.resolve();
 
-			myJsonString = JSON.stringify(path);
-			console.log(myJsonString);
+			}
 		});
 
 		resolveButton.appendTo(container);
@@ -369,7 +380,7 @@ var dvMap = function()
 	{	  
 	  if (event.keyCode == 83)
 	  {
-	    aMap.resolve();
+		result = aMap.resolve();
 	  }
 	});
 };
