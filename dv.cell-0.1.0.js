@@ -326,16 +326,27 @@ var dvMap = function()
 		var path;
 		var myJsonString;
 		var pathJSON = new Array();
+		var newArray = new Array();
 		resolveButton.on('click', function(event)
 		{
 			//Si ya construi un camino
 			if (path != null){
-				for (i=0;i<path.length;i++){
+				for (i=0;i<path.length-1;i++){
+					if (path[i].row < path[i+1].row)
+						newArray.push(2);
+					if (path[i].row > path[i+1].row)
+						newArray.push(4);
+					if (path[i].column < path[i+1].column)
+						newArray.push(1);
+					if (path[i].column > path[i+1].column)
+						newArray.push(3);
 					pathJSON.push(path[i].id);
-					//console.log(path[i].id);
 				}
 				myJsonString = JSON.parse(JSON.stringify(pathJSON));	
+				console.log("Array por id");
 				console.log(myJsonString);
+				console.log("Array transformado");
+				console.log(newArray);
 			}
 			//Sino construyo el camino
 			else {
