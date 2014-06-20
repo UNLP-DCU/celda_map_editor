@@ -362,25 +362,22 @@ var dvMap = function()
 	}
 
 	this.canvas.on('click', function(event)
-	{
-		aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-		
-	  if (event.ctrlKey)
-	  {
-  		aMap.selectEndCell(aCell.id);
-  		
-  		return;
-	  }
-	  
-    aMap.selectStartCell(aCell.id);	
-	});
+        {
+
+        if (event.ctrlKey) {
+            aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
+            aMap.selectEndCell(aCell.id);
+        } else	if (event.ctrlKey) {
+            aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
+            aMap.selectStartCell(aCell.id);
+        });
 	
 	this.canvas.on('mousemove', function(event)
 	{		
-		aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-		
 	  if (event.shiftKey)
 	  {
+		
+		aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
   		aMap.selectObstacleCell(aCell.id);
   		
   		return;
@@ -410,15 +407,11 @@ jQuery(document).ready(function()
 
 /* ToDo - BEGIN
 
-  last update: 20140604
+  last update: 2014-06-20
 
 - Permitir mapas rectangulares, hay un bug al generarlo.
 	-> Ahora genera rectangulares, pero en rutas esquinadas no encuentra path.
-- Acomodar la clase dvMap, quedó muy compleja.
-- Tratar de sacar las variables globales, para que el código sea más independiente.
 - Agregar costos a los movimientos, para que el recorrido sea el óptimo.
-- Mejorar la combinación de teclas.
-- Permitir reiniciar el mapa.
 - Permitir borrar bloqueos.
 - Agregar mayor autonomía a las celdas.
 
