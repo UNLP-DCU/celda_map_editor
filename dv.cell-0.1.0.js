@@ -1,16 +1,13 @@
-var dvCell = function(id, x, y, map, tipo)
+var dvCell = function(id, pos_x, pos_y)
 {
     this.id = id;
-    this.side = map.cellSide;
-    this.row = Math.floor(y / this.side);
-    this.column = Math.floor(x / this.side);
-    this.x = this.column * this.side;
-    this.y = this.row * this.side;
-    this.type = typeof tipo !== 'undefined' ? "normala" : tipo;
+    this.pos_x = pos_x;
+    this.pos_y = pos_y;
+    this.tipo = "normal";
 
-    this.draw = function()
+    this.draw = function(map)
     {
-        switch (this.type) {
+        switch (this.tipo) {
             case "normal":
                 map.context.fillStyle = '#DDD';
                 break;
@@ -27,89 +24,25 @@ var dvCell = function(id, x, y, map, tipo)
 
         map.context.fillRect(this.x + 1, this.y + 1, this.side - 2, this.side - 2);
     };
+    
+    this.esObstaculo = function(){
+        return this.tipo === "obstaculo";
+    }
 };
 
 var dvMap = function()
 {
     this.cant_celdas_largo = 10;
     this.cant_celdas_alto = 10;
-    this.cellSide = 25;
+    this.tamanio_lado = 25;
     this.obstacles = null;
     this.startCell = null;
     this.endCell = null;
+    this.celdas = new Array();
     this.intervalo_dibujo_path = 200;
 
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * this.cellSide + 'px" height="' + this.cant_celdas_alto * this.cellSide + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
-
-    this.isObstacle = function(id)
-    {
-        return this.getObstacles()[id];
-    };
-
-    this.getObstacles = function()
-    {
-        if (this.obstacles === null)
-        {
-            this.obstacles = new Array();
-
-            for (i = 0; i < this.countCells(); i++)
-            {
-                this.obstacles.push(false);
-            }
-        }
-
-        return this.obstacles;
-    };
-
-    this.addObstacle = function(aCell)
-    {
-        this.getObstacles()[aCell.id] = true;
-
-        this.obstacleMode();
-
-        aCell.draw();
-    };
-
-    this.countCells = function()
-    {
-        return this.cant_celdas_largo * this.cant_celdas_alto;
-    };
-
-    this.width = function()
-    {
-        return this.cant_celdas_largo * this.cellSide;
-    };
-
-    this.height = function()
-    {
-        return this.cant_celdas_alto * this.cellSide;
-    };
-
-    this.drawMode = function()
-    {
-        this.context.fillStyle = '#dddddd';
-    };
-
-    this.selectStartCellMode = function()
-    {
-        this.context.fillStyle = '#88ee77';
-    };
-
-    this.selectEndCellMode = function()
-    {
-        this.context.fillStyle = '#8877ee';
-    };
-
-    this.resolveMode = function()
-    {
-        this.context.fillStyle = '#77ddee';
-    };
-
-    this.obstacleMode = function()
-    {
-        this.context.fillStyle = '#ee7777';
-    };
 
     this.resolve = function()
     {
@@ -118,7 +51,6 @@ var dvMap = function()
             return false;
         }
 
-        this.resolveMode();
         queuedBy = this.buildPath(this.startCell, this.endCell);
 
         if (queuedBy[this.endCell.id] === -1)
@@ -443,9 +375,9 @@ jQuery(document).ready(function()
  last update: 2014-06-20
  
  - Permitir mapas rectangulares, hay un bug al generarlo.
- -> Ahora genera rectangulares, pero en rutas esquinadas no encuentra path.
+    -> Ahora genera rectangulares, pero en rutas esquinadas no encuentra path.
  - Agregar costos a los movimientos, para que el recorrido sea el óptimo.
  - Permitir borrar bloqueos.
- - Agregar mayor autonomía a las celdas.
+ - Agregar mayor autonomía a las celdas. <--- ¿¿¿¿ Qué significa esto ????
  
  ToDo - END */
