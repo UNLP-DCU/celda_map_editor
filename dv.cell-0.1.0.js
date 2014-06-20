@@ -1,8 +1,8 @@
-var dvCell = function(id, pos_x, pos_y)
+var dvCell = function(id, columna, fila)
 {
     this.id = id;
-    this.pos_x = pos_x;
-    this.pos_y = pos_y;
+    this.columna = columna;
+    this.fila = fila;
     this.tipo = "normal";
 
     this.draw = function(map)
@@ -43,6 +43,11 @@ var dvMap = function()
 
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * this.cellSide + 'px" height="' + this.cant_celdas_alto * this.cellSide + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
+    
+    
+    this.dibujarMapa = function(){
+        
+    }
 
     this.resolve = function()
     {
@@ -179,9 +184,7 @@ var dvMap = function()
 
     this.unselect = function(aCell)
     {
-        this.drawMode();
-
-        aCell.draw();
+        
     };
 
     this.getCellById = function(id)
