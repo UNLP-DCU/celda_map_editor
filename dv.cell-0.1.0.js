@@ -19,7 +19,8 @@ var dvMap = function()
 	this.cellHeight = 10;
 	this.cellSide = 25;
 	this.obstacles = null;
-	
+        this.intervalo_dibujo_path = 200;
+        
 	this.isObstacle = function(id)
 	{
 	  return this.getObstacles()[id];
@@ -132,7 +133,7 @@ var dvMap = function()
 	      {
 	        window.setInterval(null);
 	      }
-	    }, 200); 		  
+	    }, this.intervalo_dibujo_path); 		  
 		return path;
 	  }
 	}
@@ -310,6 +311,7 @@ var dvMap = function()
 	
 	this.selectObstacleCell = function(id)
 	{
+            //borrar!!!!!!!!!
 		if (this.endCell != null)
 		{
 			this.unselect(this.endCell);
@@ -361,26 +363,47 @@ var dvMap = function()
 
 	}
 
-	this.canvas.on('click', function(event)
-        {
-
-        if (event.ctrlKey) {
-            aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-            aMap.selectEndCell(aCell.id);
-        } else	if (event.ctrlKey) {
-            aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-            aMap.selectStartCell(aCell.id);
+	this.canvas.on('click', function(event){
+            
+            if(event.button == 2){ //si es el click derecho
+                aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
+                aMap.borrarCelda(aCell.id);
+            }else{
+                if (event.altKey) {
+                    
+                    aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
+                    aMap.selectEndCell(aCell.id);
+                    
+                } else if(event.ctrlKey){
+                    
+                    aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
+                    aMap.selectStartCell(aCell.id);
+                    
+                } else if (event.shiftKey){
+                    
+                    aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
+                    aMap.selectObstacleCell(aCell.id);
+                      
+                };
+            }
         });
 	
+        //desactivar menu contextual al hacer click derecho sobre el mapa
+        this.canvas.on('contextmenu', function(event){
+           return false;
+        });
+        
+        this.canvas.on('dblclick', function(event){
+            aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
+            aMap.selectEndCell(aCell.id);
+        });
+        
 	this.canvas.on('mousemove', function(event)
 	{		
 	  if (event.shiftKey)
 	  {
-		
 		aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
   		aMap.selectObstacleCell(aCell.id);
-  		
-  		return;
 	  }	 
 	});
 	
