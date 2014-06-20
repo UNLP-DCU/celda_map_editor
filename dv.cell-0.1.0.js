@@ -311,12 +311,6 @@ var dvMap = function()
 	
 	this.selectObstacleCell = function(id)
 	{
-            //borrar!!!!!!!!!
-		if (this.endCell != null)
-		{
-			this.unselect(this.endCell);
-		}
-		
 		this.addObstacle(aCell);
 	}
 	
