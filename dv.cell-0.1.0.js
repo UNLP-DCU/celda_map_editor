@@ -363,7 +363,7 @@ var dvMap = function()
 
 	this.canvas.on('click', function(event)
 	{
-		aCell = aMap.getCellByPosition(event.pageX, event.pageY);
+		aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
 		
 	  if (event.ctrlKey)
 	  {
@@ -377,7 +377,7 @@ var dvMap = function()
 	
 	this.canvas.on('mousemove', function(event)
 	{		
-		aCell = aMap.getCellByPosition(event.pageX, event.pageY);
+		aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
 		
 	  if (event.shiftKey)
 	  {
