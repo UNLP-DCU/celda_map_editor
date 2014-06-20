@@ -402,7 +402,7 @@ jQuery(document).ready(function()
 {
 	aMap = new dvMap();
 
-	aMap.appendTo(jQuery('body'));
+	aMap.appendTo(jQuery('#mapa'));
 
 	aMap.draw();
 
