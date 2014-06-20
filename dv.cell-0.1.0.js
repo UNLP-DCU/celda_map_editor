@@ -20,6 +20,11 @@ var dvMap = function()
 	this.cellSide = 25;
 	this.obstacles = null;
         this.intervalo_dibujo_path = 200;
+        this.startCell = null;
+	this.endCell = null;	
+	
+	this.canvas = jQuery('<canvas width="' + this.width() + 'px" height="' + this.height() + 'px"></canvas>');
+	this.context = this.canvas[0].getContext('2d');
         
 	this.isObstacle = function(id)
 	{
@@ -138,53 +143,54 @@ var dvMap = function()
 	  }
 	}
 	
-	this.buildPath = function(startCell, endCell)
-	{
-	  queue = new Array();
-	  visited = new Array();
-	  queuedBy = new Array();
-	  
-	  for (i = 0; i < this.countCells(); i++)
-	  {	
-	    visited.push(false);
-	    queuedBy.push(-1);
-	  }
-	  
-	  queue.push(startCell);
-	  
-	  while (queue.length > 0)
-	  {	    	    
-	    cell = queue.shift();
-	    
-	    if (cell.id == endCell.id)
-	    {
-		  //console.log(queuedBy);
-	      return queuedBy;;
-	    }
-	    
-      neighbours = this.getNeighbours(cell);
-            
-      for (i = 0; i < neighbours.length; i++)
-	    {	      
-	      neighbour = neighbours[i];
-	      
-	      if (!visited[neighbour.id] && !this.isObstacle(neighbour.id))
-	      {	    	      
-    	    visited[neighbour.id] = true;
-    	    
-    	    queuedBy[neighbour.id] = cell;
-    	    
-	        queue.push(neighbour);
+        this.buildPath = function(startCell, endCell)
+        {
+            queue = new Array();
+            visited = new Array();
+            queuedBy = new Array();
 
-	      }	    	        
-	    }	    
-	  }
-	  
-	  return queuedBy;
-	}
-	
-	this.getNeighbours = function(aCell)
-	{
+            for (i = 0; i < this.countCells(); i++)
+            {
+                visited.push(false);
+                queuedBy.push(-1);
+            }
+
+            queue.push(startCell);
+
+            while (queue.length > 0)
+            {
+                cell = queue.shift();
+
+                if (cell.id == endCell.id)
+                {
+                    //console.log(queuedBy);
+                    return queuedBy;
+                    ;
+                }
+
+                neighbours = this.getNeighbours(cell);
+
+                for (i = 0; i < neighbours.length; i++)
+                {
+                    neighbour = neighbours[i];
+
+                    if (!visited[neighbour.id] && !this.isObstacle(neighbour.id))
+                    {
+                        visited[neighbour.id] = true;
+
+                        queuedBy[neighbour.id] = cell;
+
+                        queue.push(neighbour);
+
+                    }
+                }
+            }
+
+            return queuedBy;
+        }
+
+        this.getNeighbours = function(aCell)
+        {
 	  aux = new Array();
 	  
 	  // Top-left
@@ -230,12 +236,6 @@ var dvMap = function()
 		
 		aCell.draw();
 	}
-	
-	this.startCell = null;
-	this.endCell = null;	
-	
-	this.canvas = jQuery('<canvas width="' + this.width() + 'px" height="' + this.height() + 'px"></canvas>');
-	this.context = this.canvas[0].getContext('2d');
 	
 	this.getCellById = function(id)
 	{		
