@@ -340,7 +340,8 @@ var dvMap = function()
         var newArray = new Array();
         resolveButton.on('click', function(event)
         {
-            //Si ya construi un camino
+            //Si ya construi un camino igual falta el ultimo cuadrado, 
+            // se puede poner el mismo case abajo del for pero queda medio medio
             if (path != null) {
                 for (i = 0; i < path.length - 1; i++) {
                     if (path[i].row < path[i + 1].row)
@@ -370,6 +371,20 @@ var dvMap = function()
 
         resolveButton.appendTo(container);
 
+        // Boton de reiniciar el mapa
+        var button=document.createElement("button");
+		var t=document.createTextNode("Reiniciar mapa");
+		button.addEventListener("click", function() {
+			aMap.draw();
+			path = null;
+			queue = new Array();
+			visited = new Array();
+			queuedBy = new Array();
+			pathJSON = new Array();
+			newArray = new Array();
+		}, false);
+		button.appendChild(t);
+		document.body.appendChild(button);
     };
 
     this.canvas.on('click', function(event) {
