@@ -196,55 +196,15 @@ var dvMap = function()
         return neighbours;
     };
 
-    this.unselect = function(aCell)
+    this.deseleccionar = function(celda)
     {
-        
+        celda.tipo = "normal";
+        this.dibujarCelda(celda);
     };
 
-    this.getCellById = function(id)
+    this.getCeldaPorPosicion = function(x, y)
     {
-        x = (id % this.cant_celdas_largo) * this.cellSide;
-        //TODO Aca si cant_celdas_largo se cambia por cant_celdas_alto se genera el bug que fue corregido.
-        y = Math.floor(id / this.cant_celdas_largo) * this.cellSide;
-        //console.log("->" + x);
-        return new dvCell(id, x, y, this);
-    };
-
-    this.getCellByPosition = function(x, y)
-    {
-        row = Math.floor(y / this.cellSide);
-        column = Math.floor(x / this.cellSide);
-
-        if ((column < 0) || (row < 0) || (column >= this.cant_celdas_largo) || (row >= this.cant_celdas_largo))
-        {
-            return null;
-        }
-
-        id = (row * this.cant_celdas_largo) + column;
-
-        return new dvCell(id, column * this.cellSide, row * this.cellSide, this);
-    };
-
-    this.getCellByRowCol = function(row, column)
-    {
-        if ((row < 0) || (column < 0) || (row > (this.cant_celdas_largo - 1)) || (column > (this.cant_celdas_alto - 1)))
-        {
-            return null;
-        }
-
-        id = (row * this.cant_celdas_largo) + column;
-
-        return new dvCell(id, column * this.cellSide, row * this.cellSide, this);
-    };
-
-    this.draw = function()
-    {
-        this.drawMode();
-
-        for (i = 0; i < this.countCells(); i++)
-        {
-            this.getCellById(i).draw();
-        }
+        return this.celdas[Math.floor(y / this.tamanio_lado)][Math.floor(x / this.tamanio_lado)];
     };
 
     this.selectStartCell = function(id)
