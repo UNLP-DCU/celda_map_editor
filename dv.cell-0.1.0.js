@@ -16,13 +16,13 @@ var dvMap = function()
     this.cant_celdas_alto = 10;
     this.tamanio_lado = 25;
     this.espacio_entre_celdas = 2;
-    this.color_defecto = '#DDD';
-    this.color_obstaculo = '#7EE';
+    this.color_propio = '#DDD';
+    this.color_camino = '#7EE';
+    this.color_obstaculo = '#E77';
     this.color_largada = '#8E7';
     this.color_llegada = '#87E';
-    this.obstacles = null;
-    this.startCell = null;
-    this.endCell = null;
+    this.celda_largada = null;
+    this.celda_llegada = null;
     this.celdas = new Array();
     this.intervalo_dibujo_path = 200;
 
@@ -33,7 +33,7 @@ var dvMap = function()
         
         switch (celda.tipo) {
             case "normal":
-                this.context.fillStyle = this.color_defecto;
+                this.context.fillStyle = this.color_propio;
                 break;
             case "largada":
                 this.context.fillStyle = this.color_largada;
@@ -52,6 +52,16 @@ var dvMap = function()
         this.context.fillRect(desplazamiento_x, desplazamiento_y, this.tamanio_lado, this.tamanio_lado);
     }
     
+    this.resetear = function(){
+        this.celda_largada = this.celda_llegada = null;
+        for(i = 0; i < this.cant_celdas_alto; i++){
+            for(j = 0; j < this.cant_celdas_largo; j++){
+                this.celdas[i][j].tipo = "normal";
+                this.dibujarCelda(this.celdas[i][j]);
+            }
+        }
+    };
+    
     this.dibujarMapa = function(){
         var id = 0;
         for(i = 0; i < this.cant_celdas_alto; i++){
@@ -61,7 +71,7 @@ var dvMap = function()
                 this.dibujarCelda(this.celdas[i][j]);
             }
         }
-    }
+    };
 
     this.resolve = function()
     {
@@ -196,46 +206,43 @@ var dvMap = function()
         return neighbours;
     };
 
+    this.getCeldaPorPosicion = function(x, y)
+    {
+        return this.celdas[Math.floor(y / (this.espacio_entre_celdas + this.tamanio_lado))][Math.floor(x / (this.espacio_entre_celdas + this.tamanio_lado))];
+    };
+
+    this.definirLargada = function(celda)
+    {
+        celda.tipo = "largada";
+        if (this.celda_largada !== null)
+        {
+            this.deseleccionar(this.celda_largada);
+        }
+        this.celda_largada = celda;
+        this.dibujarCelda(celda);
+    };
+
+    this.definirLlegada = function(celda)
+    {
+        celda.tipo = "llegada";
+        if (this.celda_llegada !== null)
+        {
+            this.deseleccionar(this.celda_llegada);
+        }
+        this.celda_llegada = celda;
+        this.dibujarCelda(celda);
+    };
+
+    this.agregarObstaculo = function(celda)
+    {
+        celda.tipo = "obstaculo";
+        this.dibujarCelda(celda);
+    };
+
     this.deseleccionar = function(celda)
     {
         celda.tipo = "normal";
         this.dibujarCelda(celda);
-    };
-
-    this.getCeldaPorPosicion = function(x, y)
-    {
-        return this.celdas[Math.floor(y / this.tamanio_lado)][Math.floor(x / this.tamanio_lado)];
-    };
-
-    this.selectStartCell = function(id)
-    {
-        if (this.startCell !== null)
-        {
-            this.unselect(this.startCell);
-        }
-
-        this.selectStartCellMode();
-
-        this.startCell = this.getCellById(id);
-        this.startCell.draw();
-    };
-
-    this.selectEndCell = function(id)
-    {
-        if (this.endCell !== null)
-        {
-            this.unselect(this.endCell);
-        }
-
-        this.selectEndCellMode();
-
-        this.endCell = this.getCellById(id);
-        this.endCell.draw();
-    };
-
-    this.selectObstacleCell = function(id)
-    {
-        this.addObstacle(aCell);
     };
 
     this.appendTo = function(container)
@@ -272,7 +279,7 @@ var dvMap = function()
             else {
                 event.preventDefault();
 
-                path = aMap.resolve();
+                path = mapa.resolve();
 
             }
         });
@@ -284,23 +291,23 @@ var dvMap = function()
     this.canvas.on('click', function(event) {
 
         if (event.button === 2) { //si es el click derecho
-            aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-            aMap.borrarCelda(aCell.id);
+            celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
+            mapa.borrarCelda(celda.id);
         } else {
             if (event.altKey) {
 
-                aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-                aMap.selectEndCell(aCell.id);
+                celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
+                mapa.definirLlegada(celda);
 
             } else if (event.ctrlKey) {
 
-                aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-                aMap.selectStartCell(aCell.id);
+                celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
+                mapa.definirLargada(celda);
 
             } else if (event.shiftKey) {
 
-                aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-                aMap.selectObstacleCell(aCell.id);
+                celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
+                mapa.agregarObstaculo(celda);
 
             }
             ;
@@ -313,16 +320,16 @@ var dvMap = function()
     });
 
     this.canvas.on('dblclick', function(event) {
-        aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-        aMap.selectEndCell(aCell.id);
+        celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
+        mapa.definirLlegada(celda)
     });
 
     this.canvas.on('mousemove', function(event)
     {
         if (event.shiftKey)
         {
-            aCell = aMap.getCellByPosition(event.offsetX, event.offsetY);
-            aMap.selectObstacleCell(aCell.id);
+            celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
+            mapa.agregarObstaculo(celda);
         }
     });
 
@@ -330,20 +337,20 @@ var dvMap = function()
     {
         if (event.keyCode === 83)
         {
-            result = aMap.resolve();
+            result = mapa.resolve();
         }
     });
 };
 
-var aMap;
+var mapa;
 
 jQuery(document).ready(function()
 {
-    aMap = new dvMap();
+    mapa = new dvMap();
 
-    aMap.appendTo(jQuery('#mapa'));
+    mapa.appendTo(jQuery('#mapa'));
 
-    aMap.dibujarMapa();
+    mapa.dibujarMapa();
 
 });
 
