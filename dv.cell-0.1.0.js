@@ -5,26 +5,6 @@ var dvCell = function(id, columna, fila)
     this.fila = fila;
     this.tipo = "normal";
 
-    this.draw = function(map)
-    {
-        switch (this.tipo) {
-            case "normal":
-                map.context.fillStyle = '#DDD';
-                break;
-            case "largada":
-                map.context.fillStyle = '#8E7';
-                break;
-            case "llegada":
-                map.context.fillStyle = '#87E';
-                break;
-            case "obstaculo":
-                map.context.fillStyle = '#7EE';
-                break;
-        }
-
-        map.context.fillRect(this.x + 1, this.y + 1, this.side - 2, this.side - 2);
-    };
-    
     this.esObstaculo = function(){
         return this.tipo === "obstaculo";
     }
@@ -35,18 +15,52 @@ var dvMap = function()
     this.cant_celdas_largo = 10;
     this.cant_celdas_alto = 10;
     this.tamanio_lado = 25;
+    this.espacio_entre_celdas = 2;
+    this.color_defecto = '#DDD';
+    this.color_obstaculo = '#7EE';
+    this.color_largada = '#8E7';
+    this.color_llegada = '#87E';
     this.obstacles = null;
     this.startCell = null;
     this.endCell = null;
     this.celdas = new Array();
     this.intervalo_dibujo_path = 200;
 
-    this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * this.cellSide + 'px" height="' + this.cant_celdas_alto * this.cellSide + 'px"></canvas>');
+    this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
     
+    this.dibujarCelda = function(celda){
+        
+        switch (celda.tipo) {
+            case "normal":
+                this.context.fillStyle = this.color_defecto;
+                break;
+            case "largada":
+                this.context.fillStyle = this.color_largada;
+                break;
+            case "llegada":
+                this.context.fillStyle = this.color_llegada;
+                break;
+            case "obstaculo":
+                this.context.fillStyle = this.color_obstaculo;
+                break;
+        }
+        
+        var desplazamiento_x = (this.tamanio_lado + this.espacio_entre_celdas) * celda.columna;
+        var desplazamiento_y = (this.tamanio_lado + this.espacio_entre_celdas) * celda.fila;
+
+        this.context.fillRect(desplazamiento_x, desplazamiento_y, this.tamanio_lado, this.tamanio_lado);
+    }
     
     this.dibujarMapa = function(){
-        
+        var id = 0;
+        for(i = 0; i < this.cant_celdas_alto; i++){
+            this.celdas[i] = new Array();
+            for(j = 0; j < this.cant_celdas_largo; j++){
+                this.celdas[i][j] = new dvCell(id++, j, i);
+                this.dibujarCelda(this.celdas[i][j]);
+            }
+        }
     }
 
     this.resolve = function()
@@ -369,7 +383,7 @@ jQuery(document).ready(function()
 
     aMap.appendTo(jQuery('#mapa'));
 
-    aMap.draw();
+    aMap.dibujarMapa();
 
 });
 
