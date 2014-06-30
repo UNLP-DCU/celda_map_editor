@@ -24,12 +24,16 @@ var dvMap = function()
 	this.endCell = null;	
 	this.mode = null;
 	this.mapCell = new Array();
+	this.arrayObstacles = new Array();
+	this.manualPath = null;
+	this.convertedManualPath = new Array();
 	const countCells = this.cellWidth * this.cellHeight;
 	const width = this.cellWidth * this.cellSide;
 	const height = this.cellHeight * this.cellSide;
 	const drawMode = '#dddddd';
 	const selectStartCellMode = '#88ee77';
 	const selectEndCellMode = '#8877ee';
+	const selectManualCellMode = '#000080';
 	const resolveMode = '#77ddee';
 	const obstacleMode = '#ee7777';
 
@@ -40,45 +44,59 @@ var dvMap = function()
 		{
 			return false;
 		}
-		
 		this.drawWithColour(resolveMode);
 
-		queuedBy = this.buildPath(this.startCell, this.endCell);
-	  
+		//Si esta creando el camino de manera automatica
+		if (this.manualPath == null){
+			queuedBy = this.buildPath(this.startCell, this.endCell);
+		} 
+		//Si  crea el camino de manera manual
+		else {
+			queuedBy = this.queuedByManualPath();
+		}
+	
 	  if (queuedBy[this.endCell.id] == -1)
 	  {	
 		  alert('No path!');
 	  }
 	  else
 	  {
-	    path = new Array();
-	    
-	    cell = queuedBy[this.endCell.id];
-	    
-	    while (cell.id != this.startCell.id)
-	    {
-	      path.push(cell);
-	      
-	      cell = queuedBy[cell.id];
-	    }
+		if (this.manualPath == null) {
+			path = new Array();
+			
+			cell = queuedBy[this.endCell.id];
+			
+		
+			while (cell.id != this.startCell.id)
+			{
+			    path.push(cell);
+			  
+			    cell = queuedBy[cell.id];
 
-	    path = path.reverse();
-
+			}
+			path = path.reverse();
+		} else { 
+			path = queuedBy; 
+			path = path.reverse(); 
+			path.pop();path.pop();
+			path = path.reverse(); 
+		}
+		console.log(path);
 	    i = 0;
 	    
 	    window.setInterval(function()
 	    {
 	      if (i < path.length)
 	      {
-	        path[i].draw();
-	        
-	        i++;
+			path[i].draw();
+		    i++;
 	      }
 	      else
 	      {
 	        window.setInterval(null);
 	      }
-	    }, 200); 		  
+	    }, 200); 	
+
 		return path;
 	  }
 	}
@@ -170,6 +188,7 @@ var dvMap = function()
 	this.draw = function()
 	{
 		this.drawWithColour(drawMode);
+		// INICIO TAMBIEN EL ARRAY DE ARRAY DE OBSTACULOS
 		for (i = 0; i < this.cellWidth ; i++){
 			this.mapCell[i] = new Array(this.cellHeight);
 		}
@@ -180,13 +199,22 @@ var dvMap = function()
 	}
 
 	// METODOS REFERIDOS A OBSTACULOS
-	
+	this.addToArrayObstacles = function(id){
+		temp = new Array();
+		temp.push(Math.floor(id / this.cellWidth));
+		temp.push(id % this.cellHeight);
+		this.arrayObstacles.push(temp);
+		//console.log(this.arrayObstacles);
+	}
+
 	this.addObstacle = function(aCell)
 	{
 	  this.getObstacles()[aCell.id] = true;
 	  
 	  this.drawWithColour(obstacleMode);
 	  
+	  this.addToArrayObstacles(aCell.id);
+	
 	  aCell.draw();
 	}
 	
@@ -248,7 +276,12 @@ var dvMap = function()
 		clearMap = jQuery('<div><button>Reiniciar mapa!</button></div>');
 		startPoint = jQuery('<div><button>Marcar inicio</button></div>');
 		endPoint = jQuery('<div><button>Marcar final!</button></div>');
-		obstaclePoint = jQuery('<div><button>Colocar/Quitar obstaculo</button></div>');
+		obstaclePoint = jQuery('<div><button>Colocar obstaculo</button></div>');
+		manualPath = jQuery('<div><button>Construir manual</button></div>');
+		positionStart = jQuery('<form action="#" class="form" id="start"><div><input type="Radio" name="dir" id="up" value="up" checked>Arriba</input></div><div><input type="Radio" name="dir" id="down" value="down">Abajo</input></div><div><input type="Radio" name="dir" id="left" value="left">Izquierda</input></div><div><input type="Radio" id="right" name="dir" value="right">Derecha</input></div></form>');
+
+		positionEnd = jQuery('<form action="#" class="form" id="end"><div><input type="Radio" name="dir" id="up" value="up" checked>Arriba</input></div><div><input type="Radio" name="dir" id="down" value="down">Abajo</input></div><div><input type="Radio" name="dir" id="left" value="left">Izquierda</input></div><div><input type="Radio" id="right" name="dir" value="right">Derecha</input></div></form>');
+
 		var path;
 		var myJsonString;
 		var pathJSON = new Array();
@@ -256,17 +289,115 @@ var dvMap = function()
 		resolveButton.on('click', function(event)
 		{
 			//Si ya construi un camino
+			endPos = document.forms['end'];  
+			startPos = document.forms['start'];
+			for (i=0;i<endPos.length;i++) {
+			  if (startPos[i].checked) 
+				  directionStart = i
+			  if (endPos[i].checked)
+				  directionEnd = i
+			}
 			if (path != null){
-				for (i=0;i<path.length;i++)
-					pathJSON.push(path[i].id)
-				myJsonString = JSON.parse(JSON.stringify(pathJSON));		
+				for (i=0;i<path.length-1;i++){
+					if (path[i].row < path[i+1].row)
+						newArray.push(2);
+					if (path[i].row > path[i+1].row)
+						newArray.push(4);
+					if (path[i].column < path[i+1].column)
+						newArray.push(1);
+					if (path[i].column > path[i+1].column)
+						newArray.push(3);
+					pathJSON.push(path[i].id);
+				}
+				if (path[path.length-2].row < path[path.length-1].row)
+					newArray.push(2);
+				if (path[path.length-2].row > path[path.length-1].row)
+					newArray.push(4);
+				if (path[path.length-2].column < path[path.length-1].column)
+					newArray.push(1);
+				if (path[path.length-2].column > path[path.length-1].column)
+					newArray.push(3);
+	
+				for (i=newArray.length-1;i>0;i--){
+					newArray[i] = newArray[i-1];
+				}
+
+				console.log("Array ");
+				console.log(newArray);
+				
+				arrayTransformer = new Array();				
+				arrayTransformer.push(newArray[i]);
+
+				for (i=0;i<newArray.length-1;i++){
+					ok = true;
+					if (newArray[i]==1)
+						switch(newArray[i+1]){	
+							case 2:
+								arrayTransformer.push(10);break;
+							case 4:
+								arrayTransformer.push(5);break;
+							default:
+								ok = false;}
+					else if (newArray[i]==2)
+						switch(newArray[i+1]){	
+							case 1:
+								arrayTransformer.push(7);break;
+							case 3:
+								arrayTransformer.push(12);break;
+							default:
+								ok = false;}
+					else if (newArray[i]==3)
+						switch(newArray[i+1]){	
+							case 2:
+								arrayTransformer.push(9);break;
+							case 4:
+								arrayTransformer.push(6);break;
+							default:
+								ok = false;}
+					else if (newArray[i]==4)
+						switch(newArray[i+1]){	
+							case 1:
+								arrayTransformer.push(8);break;
+							case 3:
+								arrayTransformer.push(11);break;
+							default:
+								ok = false;}
+					if (!ok){
+						arrayTransformer.push(newArray[i]);
+					}
+				}
+				arrayTransformer.push(newArray[newArray.length-1]);
+				/*
+				endPos = document.forms['end'];  
+				startPos = document.forms['start'];
+				for (i=0;i<endPos.length;i++) {
+				  if (startPos[i].checked) 
+					  directionStart = i
+				  if (endPos[i].checked)
+					  directionEnd = i
+				}
+				switch(directionStart){
+					case 0:arrayTransformer.push();break;				
+					case 1:arrayTransformer.push();break;
+					case 2:arrayTransformer.push();break;
+					case 3:arrayTransformer.push();break;
+				}*/
+
+				pathJSON.push(path[i].id);
+				myJsonString = JSON.parse(JSON.stringify(pathJSON));	
 				console.log("Array por id");
 				console.log(myJsonString);
+				console.log("Array transformado");
+				console.log(arrayTransformer);
+				console.log("Obstacles");
+				console.log(aMap.arrayObstacles);
+
 			}
 			//Sino construyo el camino
 			else {
 				event.preventDefault();
 				path = aMap.resolve();
+				if (path == false) path = null;
 			}
 		});
 		clearMap.on('click', function(event){
@@ -277,12 +408,16 @@ var dvMap = function()
 		startPoint.on('click', function(event){aMap.mode = "start";});
 		endPoint.on('click', function(event){aMap.mode = "end";});
 		obstaclePoint.on('click', function(event){aMap.mode = "obstacles";});
+		manualPath.on('click', function(event){aMap.mode = "manual";});
 
 		resolveButton.appendTo(container);
 		clearMap.appendTo(container);
 		startPoint.appendTo(container);
 		endPoint.appendTo(container);
 		obstaclePoint.appendTo(container);
+		manualPath.appendTo(container);
+		positionStart.appendTo(container);
+		positionEnd.appendTo(container);
 
 	}
 
@@ -303,6 +438,12 @@ var dvMap = function()
   		
   		return;
 	  }
+	  if (aMap.getMode() == "manual")
+	  {
+		aMap.selectManualCell(aCell.id);	
+  		
+  		return;
+	  }
 	  if (aMap.getMode() == "obstacles")
 	  {
   		aMap.selectObstacleCell(aCell.id);
@@ -311,6 +452,65 @@ var dvMap = function()
 	  }	 
 	  
 	});
+
+	// DIBUJO DE MANERA MANUAL
+	this.addManualPath = function(aCell)
+	{
+	  this.getManualPath()[aCell.id] = true;
+
+	  this.convertedManualPath.push(aCell);
+
+	  this.drawWithColour(selectManualCellMode);
+	  
+	  aCell.draw();
+	}
+
+	this.selectManualCell = function(id)
+	{
+		if (this.isManualPath(id))
+		{
+		    this.removeManualPath(aCell);
+		} else {
+			this.drawWithColour(selectManualCellMode);
+			this.addManualPath(aCell);
+		}
+	}
+
+	this.queuedByManualPath = function()
+	{
+	  this.convertedManualPath.reverse();
+	  this.convertedManualPath.push(this.startCell);
+	  this.convertedManualPath.push(this.endCell);
+	  return (this.convertedManualPath.reverse());
+	}
+
+	this.isManualPath = function(id)
+	{
+	  return this.getManualPath()[id];
+	}
+
+	this.getManualPath = function()
+	{	
+	  if (this.manualPath == null)
+	  {
+	    this.manualPath = new Array();
+	    
+	    for (i = 0; i < countCells; i++)
+	    {
+	      this.manualPath.push(false);
+	    }
+	  }
+	  return this.manualPath;
+	}
+
+	this.removeManualPath = function(aCell)
+	{
+	  this.getManualPath()[aCell.id] = false;
+
+	  this.drawWithColour(drawMode);
+
+	  aCell.draw();
+	}
 
 	// HELPERS		
 	this.getMode = function()
@@ -400,9 +600,9 @@ jQuery(document).ready(function()
 - Acomodar la clase dvMap, quedó muy compleja.
 - Tratar de sacar las variables globales, para que el código sea más independiente.
 - Agregar costos a los movimientos, para que el recorrido sea el óptimo.
-- Mejorar la combinación de teclas. OK
-- Permitir reiniciar el mapa. OK
-- Permitir borrar bloqueos. OK
+- Mejorar la combinación de teclas.
+- Permitir reiniciar el mapa.
+- Permitir borrar bloqueos.
 - Agregar mayor autonomía a las celdas.
 
   ToDo - END */
