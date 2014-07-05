@@ -8,7 +8,7 @@ var dvCell = function(id, x, y, map)
 	this.x = this.column * this.side;
 	this.y = this.row * this.side;
 
-	this.draw = function() 
+	this.draw = function()
 	{
 		map.context.fillRect(this.x + 1, this.y + 1, this.side - 2, this.side - 2);
 	}
