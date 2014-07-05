@@ -1,0 +1,15 @@
+{
+  "name": "astar",
+  "homepage": "https://github.com/bgrins/javascript-astar",
+  "version": "0.3.0",
+  "_release": "0.3.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.3.0",
+    "commit": "0c46ca5e648faa413d8437a5c3465fdf23b1525d"
+  },
+  "_source": "git://github.com/bgrins/javascript-astar.git",
+  "_target": "~0.3.0",
+  "_originalSource": "astar",
+  "_direct": true
+}
