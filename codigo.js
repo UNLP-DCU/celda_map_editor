@@ -7,21 +7,21 @@ var Celda = function(id, columna, fila)
 
     this.esObstaculo = function(){
         return this.tipo === "obstaculo";
-    }
+    };
     
-    this.__proto__.toString = function(){
+    this.__proto__.typeOf = function(){
         if(this.esObstaculo())
-            return 0
+            return 0;
         else
-            return 1
-    }
+            return 1;
+    };
     
     this.__proto__.valueOf = function(){
         if(this.esObstaculo())
-            return 0
+            return 0;
         else
-            return 1
-    }
+            return 1;
+    };
 };
 
 var Mapa = function()
@@ -60,8 +60,43 @@ var Mapa = function()
         return ret.slice(0, -2);
     }
     
+    this.toString = function(){
+        var ret = "";
+        
+        for(i = 0; i < this.cant_celdas_alto; i++){
+            ret += "[ ";
+            for(j = 0; j < this.cant_celdas_largo; j++){
+                if(this.celdas[i][j].esObstaculo())
+                    ret += "0 ";
+                else
+                    ret += "1 ";
+            }
+            ret += "],\n";
+        }
+        
+        return ret.slice(0, -2);
+    }
+    
+    
+    this.grafoAdaptado = function(){
+        var ret = new Array();
+        
+        for(i = 0; i < this.cant_celdas_alto; i++){
+            var fila = new Array();
+            for(j = 0; j < this.cant_celdas_largo; j++){
+                if(this.celdas[i][j].esObstaculo())
+                    fila.push(0);
+                else
+                    fila.push(1);
+            }
+            ret.push(fila);
+        }
+        
+        return ret;
+    }
+    
     this.resolver = function(){
-        var graphDiagonal = new Graph(this.celdas, { diagonal: true });
+        var graphDiagonal = new Graph(this.grafoAdaptado(), { diagonal: true });
         var start = graphDiagonal.grid[this.celda_largada.fila][this.celda_largada.columna];
         var end = graphDiagonal.grid[this.celda_llegada.fila][this.celda_llegada.columna];
         var resultWithDiagonals = astar.search(graphDiagonal, start, end);

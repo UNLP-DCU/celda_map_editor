@@ -14,6 +14,23 @@
                 <h1 style="text-align: center">Editor de mapas de CELDA</h1>
             </header>
 <script type='text/javascript'>
+    
+    Graph.prototype.constructor = function(gridIn, options) {
+        options = options || {};
+        this.nodes = [];
+        this.diagonal = !!options.diagonal;
+        this.grid = [];
+        for (var x = 0; x < gridIn.length; x++) {
+            this.grid[x] = [];
+
+            for (var y = 0, row = gridIn[x]; y < row.length; y++) {
+                var node = new GridNode(90, 80, row[y].esObstaculo());
+                this.grid[x][y] = node;
+                this.nodes.push(node);
+            }
+        }
+    }
+    
     var graph = new Graph([
         [1,1,1,1],
         [0,1,1,0],
@@ -46,7 +63,7 @@
     // resultWithWeight is an array containing the shortest path taking into account the weight of a node
     
     function resolver(){
-        grafo = new Graph(mapa.celdas, { diagonal: true });
+        grafo = new Graph(mapa.grafoAdaptado(), { diagonal: true });
         var start = grafo.grid[mapa.celda_largada.fila][mapa.celda_largada.columna];
         var end = grafo.grid[mapa.celda_llegada.fila][mapa.celda_llegada.columna];
         var resultWithDiagonals = astar.search(grafo, start, end);
@@ -63,6 +80,7 @@
                 <div id="mapa" style="float: left"></div>
                 <div id="acciones" style="float: none; width: -webkit-fit-content; width: -moz-fit-content; width: fit-content;">
                     <button onclick="resolver();">Construir camino</button>
+                    <button onclick="mapa.resolver();">Construir con mapa</button>
                     <button onclick="mapa.resetear();">Resetear</button>
                 </div>
             </section>
