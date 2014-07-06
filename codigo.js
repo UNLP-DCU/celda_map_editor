@@ -39,6 +39,7 @@ var Mapa = function()
     this.celda_llegada = null;
     this.celdas = new Array();
     this.intervalo_dibujo_path = 200;
+    this.camino = new Array();
 
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
@@ -100,7 +101,13 @@ var Mapa = function()
         var start = graphDiagonal.grid[this.celda_largada.fila][this.celda_largada.columna];
         var end = graphDiagonal.grid[this.celda_llegada.fila][this.celda_llegada.columna];
         var resultWithDiagonals = astar.search(graphDiagonal, start, end);
-        console.log(resultWithDiagonals);
+        
+        for(var i = 0; i < resultWithDiagonals.length; i++){
+            this.celdas[resultWithDiagonals[i].x][resultWithDiagonals[i].y].tipo = "camino";
+            this.dibujarCelda(this.celdas[resultWithDiagonals[i].x][resultWithDiagonals[i].y]);
+            this.camino.push(this.celdas[resultWithDiagonals[i].x][resultWithDiagonals[i].y]);
+        }
+        
         return resultWithDiagonals;
     }
     
@@ -119,6 +126,9 @@ var Mapa = function()
             case "obstaculo":
                 this.context.fillStyle = this.color_obstaculo;
                 break;
+            case "camino":
+                this.context.fillStyle = this.color_camino;
+                break;
         }
         
         var desplazamiento_x = (this.tamanio_lado + this.espacio_entre_celdas) * celda.columna;
@@ -135,6 +145,7 @@ var Mapa = function()
                 this.dibujarCelda(this.celdas[i][j]);
             }
         }
+        this.camino = new Array();
     };
     
     this.dibujarMapa = function(){
