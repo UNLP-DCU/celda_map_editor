@@ -1,4 +1,4 @@
-var dvCell = function(id, columna, fila)
+var Celda = function(id, columna, fila)
 {
     this.id = id;
     this.columna = columna;
@@ -8,9 +8,23 @@ var dvCell = function(id, columna, fila)
     this.esObstaculo = function(){
         return this.tipo === "obstaculo";
     }
+    
+    this.__proto__.toString = function(){
+        if(this.esObstaculo())
+            return 0
+        else
+            return 1
+    }
+    
+    this.__proto__.valueOf = function(){
+        if(this.esObstaculo())
+            return 0
+        else
+            return 1
+    }
 };
 
-var dvMap = function()
+var Mapa = function()
 {
     this.cant_celdas_largo = 10;
     this.cant_celdas_alto = 10;
@@ -28,6 +42,32 @@ var dvMap = function()
 
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
+    
+    this.toString = function(){
+        var ret = "";
+        
+        for(i = 0; i < this.cant_celdas_alto; i++){
+            ret += "[ ";
+            for(j = 0; j < this.cant_celdas_largo; j++){
+                if(this.celdas[i][j].esObstaculo())
+                    ret += "0 ";
+                else
+                    ret += "1 ";
+            }
+            ret += "],\n";
+        }
+        
+        return ret.slice(0, -2);
+    }
+    
+    this.resolver = function(){
+        var graphDiagonal = new Graph(this.celdas, { diagonal: true });
+        var start = graphDiagonal.grid[this.celda_largada.fila][this.celda_largada.columna];
+        var end = graphDiagonal.grid[this.celda_llegada.fila][this.celda_llegada.columna];
+        var resultWithDiagonals = astar.search(graphDiagonal, start, end);
+        console.log(resultWithDiagonals);
+        return resultWithDiagonals;
+    }
     
     this.dibujarCelda = function(celda){
         
@@ -67,143 +107,10 @@ var dvMap = function()
         for(i = 0; i < this.cant_celdas_alto; i++){
             this.celdas[i] = new Array();
             for(j = 0; j < this.cant_celdas_largo; j++){
-                this.celdas[i][j] = new dvCell(id++, j, i);
+                this.celdas[i][j] = new Celda(id++, j, i);
                 this.dibujarCelda(this.celdas[i][j]);
             }
         }
-    };
-
-    this.resolve = function()
-    {
-        if ((this.startCell === null) || (this.endCell === null))
-        {
-            return false;
-        }
-
-        queuedBy = this.buildPath(this.startCell, this.endCell);
-
-        if (queuedBy[this.endCell.id] === -1)
-        {
-            alert('No path!');
-        }
-        else
-        {
-            path = new Array();
-
-            cell = queuedBy[this.endCell.id];
-
-            while (cell.id !== this.startCell.id)
-            {
-                path.push(cell);
-
-                cell = queuedBy[cell.id];
-            }
-
-            path = path.reverse();
-
-            i = 0;
-
-            window.setInterval(function()
-            {
-                if (i < path.length)
-                {
-                    path[i].draw();
-
-                    i++;
-                }
-                else
-                {
-                    window.setInterval(null);
-                }
-            }, this.intervalo_dibujo_path);
-            return path;
-        }
-    };
-
-    this.buildPath = function(startCell, endCell)
-    {
-        queue = new Array();
-        visited = new Array();
-        queuedBy = new Array();
-
-        for (i = 0; i < this.countCells(); i++)
-        {
-            visited.push(false);
-            queuedBy.push(-1);
-        }
-
-        queue.push(startCell);
-
-        while (queue.length > 0)
-        {
-            cell = queue.shift();
-
-            if (cell.id === endCell.id)
-            {
-                //console.log(queuedBy);
-                return queuedBy;
-            }
-
-            neighbours = this.getNeighbours(cell);
-
-            for (i = 0; i < neighbours.length; i++)
-            {
-                neighbour = neighbours[i];
-
-                if (!visited[neighbour.id] && !this.isObstacle(neighbour.id))
-                {
-                    visited[neighbour.id] = true;
-
-                    queuedBy[neighbour.id] = cell;
-
-                    queue.push(neighbour);
-
-                }
-            }
-        }
-
-        return queuedBy;
-    };
-
-    this.getNeighbours = function(aCell)
-    {
-        aux = new Array();
-
-        // Top-left
-        //aux.push(this.getCellByRowCol(aCell.row - 1, aCell.column - 1));
-
-        // Top
-        aux.push(this.getCellByRowCol(aCell.row - 1, aCell.column));
-
-        // Top-right
-        //aux.push(this.getCellByRowCol(aCell.row - 1, aCell.column + 1));
-
-        // Right
-        aux.push(this.getCellByRowCol(aCell.row, aCell.column + 1));
-
-        // Bottom-right
-        //aux.push(this.getCellByRowCol(aCell.row + 1, aCell.column + 1));
-
-        // Bottom
-        aux.push(this.getCellByRowCol(aCell.row + 1, aCell.column));
-
-        // Bottom-left
-        //aux.push(this.getCellByRowCol(aCell.row + 1, aCell.column - 1));
-
-        // Left
-        aux.push(this.getCellByRowCol(aCell.row, aCell.column - 1));
-
-        var neighbours = new Array();
-
-        for (i = 0; i < aux.length; i++)
-        {
-            if (aux[i] !== null)
-            {
-                neighbours.push(aux[i]);
-            }
-        }
-
-        return neighbours;
     };
 
     this.getCeldaPorPosicion = function(x, y)
@@ -245,47 +152,33 @@ var dvMap = function()
         this.dibujarCelda(celda);
     };
 
-    this.appendTo = function(container)
+    this.escribirJSON = function(container)
     {
-        this.canvas.appendTo(container);
-
-        resolveButton = jQuery('<div><button>Construir camino!</button></div>');
         var path;
         var myJsonString;
         var pathJSON = new Array();
         var newArray = new Array();
-        resolveButton.on('click', function(event)
-        {
-            //Si ya construi un camino
-            if (path != null) {
-                for (i = 0; i < path.length - 1; i++) {
-                    if (path[i].row < path[i + 1].row)
-                        newArray.push(2);
-                    if (path[i].row > path[i + 1].row)
-                        newArray.push(4);
-                    if (path[i].column < path[i + 1].column)
-                        newArray.push(1);
-                    if (path[i].column > path[i + 1].column)
-                        newArray.push(3);
-                    pathJSON.push(path[i].id);
-                }
-                myJsonString = JSON.parse(JSON.stringify(pathJSON));
-                console.log("Array por id");
-                console.log(myJsonString);
-                console.log("Array transformado");
-                console.log(newArray);
-            }
-            //Sino construyo el camino
-            else {
-                event.preventDefault();
 
-                path = mapa.resolve();
+        if (path === null)
+            path = this.resolve();
 
-            }
-        });
-
-        resolveButton.appendTo(container);
-
+        for (i = 0; i < path.length - 1; i++) {
+            if (path[i].row < path[i + 1].row)
+                newArray.push(2);
+            if (path[i].row > path[i + 1].row)
+                newArray.push(4);
+            if (path[i].column < path[i + 1].column)
+                newArray.push(1);
+            if (path[i].column > path[i + 1].column)
+                newArray.push(3);
+            pathJSON.push(path[i].id);
+        }
+        myJsonString = JSON.parse(JSON.stringify(pathJSON));
+        console.log("Array por id");
+        console.log(myJsonString);
+        console.log("Array transformado");
+        console.log(newArray);
+        
     };
 
     this.canvas.on('click', function(event) {
@@ -346,9 +239,9 @@ var mapa;
 
 jQuery(document).ready(function()
 {
-    mapa = new dvMap();
+    mapa = new Mapa();
 
-    mapa.appendTo(jQuery('#mapa'));
+    mapa.canvas.appendTo(jQuery('#mapa'));
 
     mapa.dibujarMapa();
 
