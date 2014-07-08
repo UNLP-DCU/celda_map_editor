@@ -2,8 +2,9 @@
 
 	<head>
 		<title>Editor de mapas de CELDA</title>
-                <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
-                <script src="bower_components/astar/astar.js" type="text/javascript"></script>
+        <script src="bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
+        <script src="bower_components/astar/astar.js" type="text/javascript"></script>
+		<script src="writeJSON.js" type="text/javascript"></script>
 		<script src="codigo.js" type="text/javascript"></script>
                 <link href="bower_components/normalize.css/normalize.css" rel="stylesheet" type="text/css"/>
 	</head>
@@ -24,6 +25,11 @@
                 <div id="acciones" style="float: none; width: -webkit-fit-content; width: -moz-fit-content; width: fit-content;">
                     <button onclick="console.log(mapa.resolver());">Construir camino</button>
                     <button onclick="mapa.resetear();">Resetear</button>
+					<!-- ########################### -->
+                    <button onclick="mapa.setStart();">Marca inicio</button>
+                    <button onclick="mapa.setEnd();">Marca fin</button>
+                    <button onclick="mapa.setObstacle();">Colocar obstaculo</button>
+					<!-- ########################### -->
                 </div>
             </section>
             

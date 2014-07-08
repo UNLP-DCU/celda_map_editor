@@ -40,6 +40,7 @@ var Mapa = function()
     this.celdas = new Array();
     this.intervalo_dibujo_path = 200;
     this.camino = new Array();
+	this.mode = null;
 
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
@@ -97,7 +98,7 @@ var Mapa = function()
     }
     
     this.resolver = function(){
-        var graphDiagonal = new Graph(this.grafoAdaptado(), { diagonal: true });
+        var graphDiagonal = new Graph(this.grafoAdaptado(), { diagonal: false });
         var start = graphDiagonal.grid[this.celda_largada.fila][this.celda_largada.columna];
         var end = graphDiagonal.grid[this.celda_llegada.fila][this.celda_llegada.columna];
         var resultWithDiagonals = astar.search(graphDiagonal, start, end);
@@ -107,6 +108,8 @@ var Mapa = function()
             this.dibujarCelda(this.celdas[resultWithDiagonals[i].x][resultWithDiagonals[i].y]);
             this.camino.push(this.celdas[resultWithDiagonals[i].x][resultWithDiagonals[i].y]);
         }
+
+		escribirJSON(this.camino);
         
         return resultWithDiagonals;
     }
@@ -161,7 +164,7 @@ var Mapa = function()
 
     this.getCeldaPorPosicion = function(x, y)
     {
-        return this.celdas[Math.floor(y / (this.espacio_entre_celdas + this.tamanio_lado))][Math.floor(x / (this.espacio_entre_celdas + this.tamanio_lado))];
+        return this.celdas[Math.floor(y / (this.espacio_entre_celdas + this.tamanio_lado))][Math.floor(x/(this.espacio_entre_celdas + this.tamanio_lado))];
     };
 
     this.definirLargada = function(celda)
@@ -198,9 +201,9 @@ var Mapa = function()
         this.dibujarCelda(celda);
     };
 
-    this.escribirJSON = function(container)
+    /*this.escribirJSON = function(path)
     {
-        var path;
+        //var path;
         var myJsonString;
         var pathJSON = new Array();
         var newArray = new Array();
@@ -225,8 +228,9 @@ var Mapa = function()
         console.log("Array transformado");
         console.log(newArray);
         
-    };
+    };*/
 
+	/*	
     this.canvas.on('click', function(event) {
 
         if (event.button === 2) { //si es el click derecho
@@ -270,7 +274,41 @@ var Mapa = function()
             celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
             mapa.agregarObstaculo(celda);
         }
-    });
+    });*/
+
+	// Nuevos metodos
+	// CONTROLA EL EVENTO DE CLICK EN EL CANVAS
+	this.canvas.on('click', function(event)
+	{
+      celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
+	  	
+	  if (mapa.getMode() == "end") {
+  		mapa.definirLlegada(celda)
+  		return;
+	  }
+	  if (mapa.getMode() == "start") {
+		mapa.definirLargada(celda);
+  		return;
+	  }
+	  if (mapa.getMode() == "manual") {
+		aMap.selectManualCell(aCell.id);	
+  		return;
+	  }
+	  if (mapa.getMode() == "obstacles") {
+  		mapa.agregarObstaculo(celda);
+  		return;
+	  }	 
+	  
+	});
+
+	this.getMode = function()
+	{
+		return this.mode;
+	}
+
+	this.setStart = function(){mapa.mode = "start";}
+	this.setEnd = function(){mapa.mode = "end";}
+	this.setObstacle = function(){mapa.mode = "obstacles";}
 
     jQuery('body').keydown(function(event)
     {
