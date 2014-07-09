@@ -317,6 +317,21 @@ peer2.on('connection', function(conn) {
   });
 });
 
+peer2.on('error', function(err) {
+    peer2.destroy();
+    alert("ERRORES EN PEER, se rompió todo. ABORTEN ABORTEEEEEEEEEEEEEEEEEENNNNNNNNNN"); 
+});
+
+function mandar_mapas(){
+    connection = peer2.connect('celda_map_editor_peer_789');		  	
+
+    
+
+    connection.on('open', function(){
+            connection.send(camino);						
+    });
+}
+    
 jQuery(document).ready(function()
 {
     mapa = new Mapa();
