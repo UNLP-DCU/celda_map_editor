@@ -62,23 +62,6 @@ var Mapa = function()
         return ret.slice(0, -2);
     }
     
-    this.toString = function(){
-        var ret = "";
-        
-        for(i = 0; i < this.cant_celdas_alto; i++){
-            ret += "[ ";
-            for(j = 0; j < this.cant_celdas_largo; j++){
-                if(this.celdas[i][j].esObstaculo())
-                    ret += "0 ";
-                else
-                    ret += "1 ";
-            }
-            ret += "],\n";
-        }
-        
-        return ret.slice(0, -2);
-    }
-    
     
     this.grafoAdaptado = function(){
         var ret = new Array();
@@ -320,6 +303,19 @@ var Mapa = function()
 };
 
 var mapa;
+
+var peer2 = new Peer('celda_map_editor_peer_789', {key: 'ino3l998li60f6r', debug: 3});
+    
+//peer2 esta esperando que le manden algo.
+//una peticion por ejemplo como un servidorcito 
+peer2.on('connection', function(conn) {	  
+  conn.on('data', function(data){		
+        // Peer2 imprime lo q le envia peer
+        console.log(data);
+        //y manda un mensaje diferente, que serian los mapas
+        conn.send("----------------------- Ahora Peer2 le dice a Peer HOLA de nuevo!, y va lo q me pediste");
+  });
+});
 
 jQuery(document).ready(function()
 {
