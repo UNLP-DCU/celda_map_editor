@@ -313,7 +313,7 @@ peer2.on('connection', function(conn) {
         // Peer2 imprime lo q le envia peer
         console.log(data);
         //y manda un mensaje diferente, que serian los mapas
-        conn.send("----------------------- Ahora Peer2 le dice a Peer HOLA de nuevo!, y va lo q me pediste");
+        conn.send("Qué querés? pan? \n El mapa te lo mando yo, wachín.");
   });
 });
 
