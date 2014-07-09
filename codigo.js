@@ -37,6 +37,7 @@ var Mapa = function()
     this.color_llegada = '#87E';
     this.celda_largada = null;
     this.celda_llegada = null;
+	this.arrayObstacles = new Array();
     this.celdas = new Array();
     this.intervalo_dibujo_path = 200;
     this.camino = new Array();
@@ -93,6 +94,7 @@ var Mapa = function()
         }
 
 		escribirJSON(this.camino);
+		console.log(mapa.arrayObstacles);
         
         return resultWithDiagonals;
     }
@@ -175,89 +177,23 @@ var Mapa = function()
     this.agregarObstaculo = function(celda)
     {
         celda.tipo = "obstaculo";
+		this.addToArrayObstacles(celda.id);
         this.dibujarCelda(celda);
     };
+
+	// METODOS REFERIDOS A OBSTACULOS
+	this.addToArrayObstacles = function(id){
+		temp = new Array();
+		temp.push(Math.floor(id / this.cant_celdas_largo));
+		temp.push(id % this.cant_celdas_alto);
+		this.arrayObstacles.push(temp);
+	}
 
     this.deseleccionar = function(celda)
     {
         celda.tipo = "normal";
         this.dibujarCelda(celda);
     };
-
-    /*this.escribirJSON = function(path)
-    {
-        //var path;
-        var myJsonString;
-        var pathJSON = new Array();
-        var newArray = new Array();
-
-        if (path === null)
-            path = this.resolve();
-
-        for (i = 0; i < path.length - 1; i++) {
-            if (path[i].row < path[i + 1].row)
-                newArray.push(2);
-            if (path[i].row > path[i + 1].row)
-                newArray.push(4);
-            if (path[i].column < path[i + 1].column)
-                newArray.push(1);
-            if (path[i].column > path[i + 1].column)
-                newArray.push(3);
-            pathJSON.push(path[i].id);
-        }
-        myJsonString = JSON.parse(JSON.stringify(pathJSON));
-        console.log("Array por id");
-        console.log(myJsonString);
-        console.log("Array transformado");
-        console.log(newArray);
-        
-    };*/
-
-	/*	
-    this.canvas.on('click', function(event) {
-
-        if (event.button === 2) { //si es el click derecho
-            celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
-            mapa.borrarCelda(celda.id);
-        } else {
-            if (event.altKey) {
-
-                celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
-                mapa.definirLlegada(celda);
-
-            } else if (event.ctrlKey) {
-
-                celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
-                mapa.definirLargada(celda);
-
-            } else if (event.shiftKey) {
-
-                celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
-                mapa.agregarObstaculo(celda);
-
-            }
-            ;
-        }
-    });
-
-    //desactivar menu contextual al hacer click derecho sobre el mapa
-    this.canvas.on('contextmenu', function(event) {
-        return false;
-    });
-
-    this.canvas.on('dblclick', function(event) {
-        celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
-        mapa.definirLlegada(celda)
-    });
-
-    this.canvas.on('mousemove', function(event)
-    {
-        if (event.shiftKey)
-        {
-            celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
-            mapa.agregarObstaculo(celda);
-        }
-    });*/
 
 	// Nuevos metodos
 	// CONTROLA EL EVENTO DE CLICK EN EL CANVAS

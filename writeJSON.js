@@ -73,21 +73,6 @@ function escribirJSON(path) {
 			}
 		}
 		arrayTransformer.push(newArray[newArray.length-1]);
-		/*
-		endPos = document.forms['end'];  
-		startPos = document.forms['start'];
-		for (i=0;i<endPos.length;i++) {
-		  if (startPos[i].checked) 
-			  directionStart = i
-		  if (endPos[i].checked)
-			  directionEnd = i
-		}
-		switch(directionStart){
-			case 0:arrayTransformer.push();break;				
-			case 1:arrayTransformer.push();break;
-			case 2:arrayTransformer.push();break;
-			case 3:arrayTransformer.push();break;
-		}*/
 
 		pathJSON.push(path[i].id);
 		myJsonString = JSON.parse(JSON.stringify(pathJSON));	
