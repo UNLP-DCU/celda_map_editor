@@ -37,14 +37,31 @@ var Mapa = function()
     this.color_llegada = '#87E';
     this.celda_largada = null;
     this.celda_llegada = null;
-	this.arrayObstacles = new Array();
     this.celdas = new Array();
-    this.intervalo_dibujo_path = 200;
     this.camino = new Array();
-	this.mode = null;
+    this.mode = null;
+    this.orientacion_inicio = null;
+    this.array_direcciones = "";
+    this.array_transformado = "";
+    this.array_obstaculos = "";
 
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
+    
+    this.resetear = function(){
+        this.celda_largada = this.celda_llegada = null;
+        for(i = 0; i < this.cant_celdas_alto; i++){
+            for(j = 0; j < this.cant_celdas_largo; j++){
+                this.celdas[i][j].tipo = "normal";
+                this.dibujarCelda(this.celdas[i][j]);
+            }
+        }
+        this.camino = new Array();
+        this.orientacion_inicio = null;
+        this.array_direcciones = "";
+        this.array_transformado = "";
+        this.array_obstaculos = "";
+    };
     
     this.toString = function(){
         var ret = "";
@@ -87,14 +104,12 @@ var Mapa = function()
         var end = graphDiagonal.grid[this.celda_llegada.fila][this.celda_llegada.columna];
         var resultWithDiagonals = astar.search(graphDiagonal, start, end);
         
-        for(var i = 0; i < resultWithDiagonals.length; i++){
+        this.camino.push(this.celda_largada);
+        for(var i = 0; i < resultWithDiagonals.length - 1; i++){
             this.celdas[resultWithDiagonals[i].x][resultWithDiagonals[i].y].tipo = "camino";
             this.dibujarCelda(this.celdas[resultWithDiagonals[i].x][resultWithDiagonals[i].y]);
             this.camino.push(this.celdas[resultWithDiagonals[i].x][resultWithDiagonals[i].y]);
         }
-
-		escribirJSON(this.camino);
-		console.log(mapa.arrayObstacles);
         
         return resultWithDiagonals;
     }
@@ -124,17 +139,6 @@ var Mapa = function()
 
         this.context.fillRect(desplazamiento_x, desplazamiento_y, this.tamanio_lado, this.tamanio_lado);
     }
-    
-    this.resetear = function(){
-        this.celda_largada = this.celda_llegada = null;
-        for(i = 0; i < this.cant_celdas_alto; i++){
-            for(j = 0; j < this.cant_celdas_largo; j++){
-                this.celdas[i][j].tipo = "normal";
-                this.dibujarCelda(this.celdas[i][j]);
-            }
-        }
-        this.camino = new Array();
-    };
     
     this.dibujarMapa = function(){
         var id = 0;
@@ -177,17 +181,8 @@ var Mapa = function()
     this.agregarObstaculo = function(celda)
     {
         celda.tipo = "obstaculo";
-		this.addToArrayObstacles(celda.id);
         this.dibujarCelda(celda);
     };
-
-	// METODOS REFERIDOS A OBSTACULOS
-	this.addToArrayObstacles = function(id){
-		temp = new Array();
-		temp.push(Math.floor(id / this.cant_celdas_largo));
-		temp.push(id % this.cant_celdas_alto);
-		this.arrayObstacles.push(temp);
-	}
 
     this.deseleccionar = function(celda)
     {
@@ -197,8 +192,8 @@ var Mapa = function()
 
 	// Nuevos metodos
 	// CONTROLA EL EVENTO DE CLICK EN EL CANVAS
-	this.canvas.on('click', function(event)
-	{
+    this.canvas.on('click', function(event)
+    {
       celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
 	  	
 	  if (mapa.getMode() == "end") {
@@ -220,14 +215,14 @@ var Mapa = function()
 	  
 	});
 
-	this.getMode = function()
-	{
-		return this.mode;
-	}
+    this.getMode = function()
+    {
+            return this.mode;
+    }
 
-	this.setStart = function(){mapa.mode = "start";}
-	this.setEnd = function(){mapa.mode = "end";}
-	this.setObstacle = function(){mapa.mode = "obstacles";}
+    this.setStart = function(){mapa.mode = "start";}
+    this.setEnd = function(){mapa.mode = "end";}
+    this.setObstacle = function(){mapa.mode = "obstacles";}
 
     jQuery('body').keydown(function(event)
     {
@@ -236,6 +231,93 @@ var Mapa = function()
             result = mapa.resolve();
         }
     });
+
+    this.procesarMetadatosCaminos = function () {
+
+        if (this.camino !== null) {
+            
+            this.array_direcciones = new Array();
+            this.array_transformado = new Array();
+            this.array_obstaculos = new Array();
+            
+            for (i = 0; i < this.camino.length - 1; i++) {
+                if (this.camino[i].fila < this.camino[i + 1].fila)
+                    this.array_direcciones.push(2);
+                if (this.camino[i].fila > this.camino[i + 1].fila)
+                    this.array_direcciones.push(4);
+                if (this.camino[i].columna < this.camino[i + 1].columna)
+                    this.array_direcciones.push(1);
+                if (this.camino[i].columna > this.camino[i + 1].columna)
+                    this.array_direcciones.push(3);
+            }
+
+            this.array_transformado.push(this.array_direcciones[0]);
+
+            for (i = 0; i < this.array_direcciones.length - 1; i++) {
+                ok = true;
+                if (this.array_direcciones[i] == 1)
+                    switch (this.array_direcciones[i + 1]) {
+                        case 2:
+                            this.array_transformado.push(10);
+                            break;
+                        case 4:
+                            this.array_transformado.push(5);
+                            break;
+                        default:
+                            ok = false;
+                    }
+                else if (this.array_direcciones[i] == 2)
+                    switch (this.array_direcciones[i + 1]) {
+                        case 1:
+                            this.array_transformado.push(7);
+                            break;
+                        case 3:
+                            this.array_transformado.push(12);
+                            break;
+                        default:
+                            ok = false;
+                    }
+                else if (this.array_direcciones[i] == 3)
+                    switch (this.array_direcciones[i + 1]) {
+                        case 2:
+                            this.array_transformado.push(9);
+                            break;
+                        case 4:
+                            this.array_transformado.push(6);
+                            break;
+                        default:
+                            ok = false;
+                    }
+                else if (this.array_direcciones[i] == 4)
+                    switch (this.array_direcciones[i + 1]) {
+                        case 1:
+                            this.array_transformado.push(8);
+                            break;
+                        case 3:
+                            this.array_transformado.push(11);
+                            break;
+                        default:
+                            ok = false;
+                    }
+                if (!ok) {
+                    this.array_transformado.push(this.array_direcciones[i]);
+                }
+            }
+            //this.array_transformado.push(this.array_direcciones[this.array_direcciones.length - 1]);
+            
+        
+            for(i = 0; i < this.cant_celdas_alto; i++){
+                for(j = 0; j < this.cant_celdas_largo; j++){
+                    if(this.celdas[i][j].esObstaculo()){
+                        this.array_obstaculos.push(new Array(this.celdas[i][j].fila, this.celdas[i][j].columna));
+                    }
+                }
+            }
+            
+            this.orientacion_inicio = this.array_direcciones[0];
+
+        }
+    }
 };
 
 var mapa;
@@ -258,13 +340,26 @@ peer2.on('error', function(err) {
     alert("ERRORES EN PEER, se rompió todo. ABORTEN ABORTEEEEEEEEEEEEEEEEEENNNNNNNNNN"); 
 });
 
-function mandar_mapas(){
+function mandar_mapa(){
     connection = peer2.connect('celda_map_editor_peer_789');		  	
 
+    mapa.procesarMetadatosCaminos();
     
+    output = new Array();
+    
+    output.push(mapa.cant_celdas_alto);
+    output.push(mapa.cant_celdas_largo);
+    output.push(mapa.orientacion_inicio);
+    output.push(new Array(mapa.celda_largada.fila, mapa.celda_largada.columna));
+    output.push(new Array(mapa.celda_llegada.fila, mapa.celda_llegada.columna));
+    output.push(mapa.array_direcciones);
+    output.push(mapa.array_transformado);
+    output.push(mapa.array_obstaculos);
+        
+    console.log("Output PeerJS:" + JSON.stringify(output));
 
     connection.on('open', function(){
-            connection.send(camino);						
+            connection.send(JSON.stringify(output));						
     });
 }
     
