@@ -49,9 +49,9 @@ var Mapa = function()
     this.context = this.canvas[0].getContext('2d');
     
     this.resetear = function(){
+        jQuery("#mapa > canvas").remove();
         this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
         this.context = this.canvas[0].getContext('2d');
-        jQuery("#mapa > canvas").remove();
         this.canvas.appendTo(jQuery('#mapa'));
         this.celda_largada = this.celda_llegada = null;
         for(i = 0; i < this.cant_celdas_alto; i++){
@@ -322,53 +322,59 @@ var Mapa = function()
 
         }
     }
+    
+    this.JSONDeEnvio = function(){
+        this.procesarMetadatosCaminos();
+
+        var output = new Array();
+
+        output.push(this.cant_celdas_alto);
+        output.push(this.cant_celdas_largo);
+        output.push(this.orientacion_inicio);
+        output.push(new Array(this.celda_largada.fila, this.celda_largada.columna));
+        output.push(new Array(this.celda_llegada.fila, this.celda_llegada.columna));
+        //output.push(this.array_direcciones);
+        output.push(this.array_transformado);
+        output.push(this.array_obstaculos);
+        
+        return JSON.stringify(output);
+    }
+    
 };
 
-var mapa;
+var mapa, peer2, connection;
 
-var peer2 = new Peer('celda_map_editor_peer_789', {key: 'ino3l998li60f6r', debug: 3});
-    
-//peer2 esta esperando que le manden algo.
-//una peticion por ejemplo como un servidorcito 
-peer2.on('connection', function(conn) {	  
-  conn.on('data', function(data){		
-        // Peer2 imprime lo q le envia peer
-        console.log(data);
-        //y manda un mensaje diferente, que serian los mapas
-        conn.send("Qué querés? pan? \n El mapa te lo mando yo, wachín.");
-  });
-});
-
-peer2.on('error', function(err) {
-    peer2.destroy();
-    alert("ERRORES EN PEER, se rompió todo. ABORTEN ABORTEEEEEEEEEEEEEEEEEENNNNNNNNNN"); 
-});
 
 function mandar_mapa(){
-    connection = peer2.connect('celda_map_editor_peer_789');		  	
-
-    mapa.procesarMetadatosCaminos();
-    
-    output = new Array();
-    
-    output.push(mapa.cant_celdas_alto);
-    output.push(mapa.cant_celdas_largo);
-    output.push(mapa.orientacion_inicio);
-    output.push(new Array(mapa.celda_largada.fila, mapa.celda_largada.columna));
-    output.push(new Array(mapa.celda_llegada.fila, mapa.celda_llegada.columna));
-    output.push(mapa.array_direcciones);
-    output.push(mapa.array_transformado);
-    output.push(mapa.array_obstaculos);
+    connection = peer2.connect('celda_app_peer_nico');		  	
         
-    console.log("Output PeerJS:" + JSON.stringify(output));
+    console.log("Output PeerJS:" + mapa.JSONDeEnvio());
 
     connection.on('open', function(){
-            connection.send(JSON.stringify(output));						
+            connection.send(mapa.JSONDeEnvio());
     });
 }
     
 jQuery(document).ready(function()
 {
+    var peer2 = new Peer('celda_map_editor_peer_nico', {key: 'ino3l998li60f6r', debug: 3});
+    
+    //peer2 esta esperando que le manden algo.
+    //una peticion por ejemplo como un servidorcito 
+    peer2.on('connection', function(conn) {	  
+      conn.on('data', function(data){		
+            // Peer2 imprime lo q le envia peer
+            console.log(data);
+            //y manda un mensaje diferente, que serian los mapas
+            conn.send("Qué querés? pan? \n El mapa te lo mando yo, wachín.");
+      });
+    });
+
+    peer2.on('error', function(err) {
+        peer2.destroy();
+        alert("ERRORES EN PEER, se rompio todo. ABORTEN ABORTEEEEEEEEEEEEEEEEEENNNNNNNNNN"); 
+    });
+    
     mapa = new Mapa();
 
     mapa.canvas.appendTo(jQuery('#mapa'));
@@ -379,12 +385,8 @@ jQuery(document).ready(function()
 
 /* ToDo - BEGIN
  
- last update: 2014-06-20
+ last update: 2014-07-10
  
- - Permitir mapas rectangulares, hay un bug al generarlo.
-    -> Ahora genera rectangulares, pero en rutas esquinadas no encuentra path.
- - Agregar costos a los movimientos, para que el recorrido sea el óptimo.
  - Permitir borrar bloqueos.
- - Agregar mayor autonomía a las celdas. <--- ¿¿¿¿ Qué significa esto ????
  
  ToDo - END */
