@@ -49,6 +49,10 @@ var Mapa = function()
     this.context = this.canvas[0].getContext('2d');
     
     this.resetear = function(){
+        this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
+        this.context = this.canvas[0].getContext('2d');
+        jQuery("#mapa > canvas").remove();
+        this.canvas.appendTo(jQuery('#mapa'));
         this.celda_largada = this.celda_llegada = null;
         for(i = 0; i < this.cant_celdas_alto; i++){
             for(j = 0; j < this.cant_celdas_largo; j++){
@@ -61,8 +65,6 @@ var Mapa = function()
         this.array_direcciones = "";
         this.array_transformado = "";
         this.array_obstaculos = "";
-        this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
-        this.context = this.canvas[0].getContext('2d');
     };
     
     this.toString = function(){
