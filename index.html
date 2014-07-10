@@ -33,20 +33,18 @@
             </div>
             <div id="mapa" style="float: left"></div>
             <div id="acciones" style="float: none; width: -webkit-fit-content; width: -moz-fit-content; width: fit-content;">
-                <button onclick="mapa.resolver();">Construir camino</button>
-                <button onclick="mapa.resetear();">Resetear</button>
-                <button onclick="mandar_mapa();">Mandar mapa</button>
-                <!-- ########################### -->
-                <button onclick="mapa.setStart();">Marca inicio</button>
-                <button onclick="mapa.setEnd();">Marca fin</button>
-                <button onclick="mapa.setObstacle();">Colocar obstaculo</button>
+				<button onclick="initMap(10,10);">Iniciar Mapa</button>
 				<form">
 					<input id="ancho">Ancho</input>
 					<input id="alto">Alto</input>
 					<input type="button" value="redimensionar mapa" onClick="mapa.setDimensionMapa()">
 				</form>	
-				<button onclick="initMap(10,10);">Crear Mapa</button>
-                <!-- ########################### -->
+                <button onclick="mapa.resetear();">Resetear</button>
+                <button onclick="mapa.setStart();">Marca inicio</button>
+                <button onclick="mapa.setEnd();">Marca fin</button>
+                <button onclick="mapa.setObstacle();">Colocar obstaculo</button>
+                <button onclick="mapa.resolver();">Construir camino</button>
+                <button onclick="mandar_mapa();">Mandar mapa</button>
             </div>
         </section>
 
