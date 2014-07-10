@@ -48,11 +48,11 @@ var Mapa = function(largo,alto)
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
     
-	this.setDimensionMapa = function(){
-		initMap(document.getElementById('ancho').value,document.getElementById('alto').value);
-		//initMap(5,5);
-		mapa.resetear();
-	}
+    this.setDimensionMapa = function(){
+        this.cant_celdas_largo = document.getElementById('ancho').value;
+        this.cant_celdas_alto = document.getElementById('alto').value;
+        mapa.resetear();
+    }
 
     this.resetear = function(){
         jQuery("#mapa > canvas").remove();
@@ -380,18 +380,10 @@ jQuery(document).ready(function(){
         alert("ERRORES EN PEER, se rompio todo. ABORTEN ABORTEEEEEEEEEEEEEEEEEENNNNNNNNNN"); 
     });
     
-    mapa = new Mapa();
+    mapa = new Mapa(10,10);
+    mapa.canvas.appendTo(jQuery('#mapa'));
+    mapa.dibujarMapa();
 });
-
-function initMap(largo,alto){
-
-	mapa = new Mapa(largo,alto);
-
-	mapa.canvas.appendTo(jQuery('#mapa'));
-
-	mapa.dibujarMapa();
-
-}
 
 /* ToDo - BEGIN
  
