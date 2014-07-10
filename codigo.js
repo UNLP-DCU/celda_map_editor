@@ -352,8 +352,8 @@ var mapa, peer2, connection;
 
 
 function mandar_mapa(){
-    connection = peer2.connect('celda_app_peer_nico');		  	
         
+    connection = peer2.connect('celda_app_peer_nico_1');		  	
     console.log("Output PeerJS:" + mapa.JSONDeEnvio());
 
     connection.on('open', function(){
@@ -362,7 +362,7 @@ function mandar_mapa(){
 }
     
 jQuery(document).ready(function(){
-    var peer2 = new Peer('celda_map_editor_peer_nico', {key: 'ino3l998li60f6r', debug: 3});
+    peer2 = new Peer('celda_map_editor_peer_nico_1', {key: 'ino3l998li60f6r', debug: 3});
     
     //peer2 esta esperando que le manden algo.
     //una peticion por ejemplo como un servidorcito 
@@ -371,7 +371,8 @@ jQuery(document).ready(function(){
             // Peer2 imprime lo q le envia peer
             console.log(data);
             //y manda un mensaje diferente, que serian los mapas
-            conn.send("Qué querés? pan? \n El mapa te lo mando yo, wachín.");
+            conn.send(mapa.JSONDeEnvio());
+            //conn.send("Qué querés? pan? \n El mapa te lo mando yo, wachín.");
       });
     });
 
