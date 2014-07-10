@@ -24,10 +24,10 @@ var Celda = function(id, columna, fila)
     };
 };
 
-var Mapa = function()
+var Mapa = function(largo,alto)
 {
-    this.cant_celdas_largo = 10;
-    this.cant_celdas_alto = 10;
+    this.cant_celdas_largo = largo;
+    this.cant_celdas_alto = alto;
     this.tamanio_lado = 25;
     this.espacio_entre_celdas = 2;
     this.color_propio = '#DDD';
@@ -48,6 +48,12 @@ var Mapa = function()
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
     
+	this.setDimensionMapa = function(){
+		initMap(document.getElementById('ancho').value,document.getElementById('alto').value);
+		//initMap(5,5);
+		mapa.resetear();
+	}
+
     this.resetear = function(){
         jQuery("#mapa > canvas").remove();
         this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
@@ -355,8 +361,7 @@ function mandar_mapa(){
     });
 }
     
-jQuery(document).ready(function()
-{
+jQuery(document).ready(function(){
     var peer2 = new Peer('celda_map_editor_peer_nico', {key: 'ino3l998li60f6r', debug: 3});
     
     //peer2 esta esperando que le manden algo.
@@ -376,12 +381,17 @@ jQuery(document).ready(function()
     });
     
     mapa = new Mapa();
-
-    mapa.canvas.appendTo(jQuery('#mapa'));
-
-    mapa.dibujarMapa();
-
 });
+
+function initMap(largo,alto){
+
+	mapa = new Mapa(largo,alto);
+
+	mapa.canvas.appendTo(jQuery('#mapa'));
+
+	mapa.dibujarMapa();
+
+}
 
 /* ToDo - BEGIN
  
