@@ -17,20 +17,20 @@
 
         <section id="contenido" style="width: -webkit-fit-content; width: -moz-fit-content; width: fit-content; margin: 0 auto;">
             <div id="controles" style="width: 50px; float: right">
-                <img src="largada.png" alt="largada" draggable="true" width="50" height="50"/>
-                <img src="llegada.png" alt="llegada" draggable="true" width="50px" height="50px"/>
-                <img src="obstaculo.png" alt="obstaculo" width="50px" height="50px"/>
+                <img src="largada.png" alt="largada" draggable="true" width="50" height="50" onclick="mapa.setStart();" />
+                <img src="llegada.png" alt="llegada" draggable="true" width="50px" height="50px" onclick="mapa.setEnd();" />
+                <img src="obstaculo.png" alt="obstaculo" width="50px" height="50px" onclick="mapa.setObstacle();" />
             </div>
             <div id="mapa" style="float: left"></div>
             <div id="acciones" style="float: none; width: -webkit-fit-content; width: -moz-fit-content; width: fit-content;">
                 <button onclick="mapa.resolver();">Construir camino</button>
                 <button onclick="mapa.resetear();">Resetear</button>
-                <button onclick="mandar_mapa();">Mandar mapa</button>
-                <!-- ########################### -->
+                <!--<button onclick="mandar_mapa();">Mandar mapa</button>-->
+                <!-- 
                 <button onclick="mapa.setStart();">Marca inicio</button>
                 <button onclick="mapa.setEnd();">Marca fin</button>
                 <button onclick="mapa.setObstacle();">Colocar obstaculo</button>
-                <!-- ########################### -->
+                -->
             </div>
         </section>
 
