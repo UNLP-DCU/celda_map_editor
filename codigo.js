@@ -308,7 +308,7 @@ var Mapa = function(largo,alto)
                     this.array_transformado.push(this.array_direcciones[i]);
                 }
             }
-            //this.array_transformado.push(this.array_direcciones[this.array_direcciones.length - 1]);
+            this.array_transformado.push(this.array_direcciones[this.array_direcciones.length - 1]);
             
         
             for(i = 0; i < this.cant_celdas_alto; i++){
@@ -322,63 +322,95 @@ var Mapa = function(largo,alto)
             this.orientacion_inicio = this.array_direcciones[0];
 
         }
-    }
-    
-    this.JSONDeEnvio = function(){
-        this.procesarMetadatosCaminos();
-
-        var output = new Array();
-
-        output.push(this.cant_celdas_alto);
-        output.push(this.cant_celdas_largo);
-        output.push(this.orientacion_inicio);
-        output.push(new Array(this.celda_largada.fila, this.celda_largada.columna));
-        output.push(new Array(this.celda_llegada.fila, this.celda_llegada.columna));
-        //output.push(this.array_direcciones);
-        output.push(this.array_transformado);
-        output.push(this.array_obstaculos);
-        
-        return JSON.stringify(output);
-    }
-    
+    }       
 };
-
-var mapa, peer2, connection;
-
-
-function mandar_mapa(){
-        
-    connection = peer2.connect('celda_app_peer_nico_1');		  	
-    console.log("Output PeerJS:" + mapa.JSONDeEnvio());
-
-    connection.on('open', function(){
-            connection.send(mapa.JSONDeEnvio());
-    });
-}
     
 jQuery(document).ready(function(){
-    peer2 = new Peer('celda_map_editor_peer_nico_1', {key: 'ino3l998li60f6r', debug: 3});
-    
-    //peer2 esta esperando que le manden algo.
-    //una peticion por ejemplo como un servidorcito 
-    peer2.on('connection', function(conn) {	  
-      conn.on('data', function(data){		
-            // Peer2 imprime lo q le envia peer
-            console.log(data);
-            //y manda un mensaje diferente, que serian los mapas
-            conn.send(mapa.JSONDeEnvio());
-            //conn.send("Qué querés? pan? \n El mapa te lo mando yo, wachín.");
-      });
-    });
-
-    peer2.on('error', function(err) {
-        peer2.destroy();
-        alert("ERRORES EN PEER, se rompio todo. ABORTEN ABORTEEEEEEEEEEEEEEEEEENNNNNNNNNN"); 
-    });
     
     mapa = new Mapa(jQuery("#largo").val(), jQuery("#alto").val());
     mapa.dibujarMapa();
 });
+
+var mapa;
+/*
+var peer2 = new Peer('celda_map_editor_peer_789', {key: 'ino3l998li60f6r', debug: 3});
+    
+//peer2 esta esperando que le manden algo.
+//una peticion por ejemplo como un servidorcito 
+peer2.on('connection', function(conn) {	  
+  conn.on('data', function(data){		
+        // Peer2 imprime lo q le envia peer
+        console.log(data);
+        //y manda un mensaje diferente, que serian los mapas
+        conn.send("Qué querés? pan? \n El mapa te lo mando yo, wachín.");
+  });
+});
+
+peer2.on('error', function(err) {
+    peer2.destroy();
+    alert("ERRORES EN PEER, se rompió todo. ABORTEN ABORTEEEEEEEEEEEEEEEEEENNNNNNNNNN"); 
+});
+*/
+var peer2;
+var errores = false;
+function mandar_mapa(){
+	
+	//cuando se producen errores se llama a disconnect y el peer se destruye
+	//es necesario re-crearlo para que funcionen las conexiones despues del disconnect
+	if(peer2 == null || errores){
+		peer2 = new Peer('celda_map_editor_peer258', {key: 'ino3l998li60f6r', debug: 3});
+	}
+	   	
+    connection = peer2.connect('celda_app_peer654');
+	
+	peer2.on('error', function(err) { errores=true; peer2.destroy(); console.log("ERRORES EN PEER"); });
+		
+	connection.on('open', function(){
+	
+		mapa.procesarMetadatosCaminos();
+		errores = false;
+		
+		//Este es el molde de json para la app
+		//pisariamos los valores con los q queremos mandar
+		var MAPAS = {
+			"cantMapas":1,
+			"mapas": [
+			{
+				"nombre":"Enviado",
+				"alto":99,
+				"ancho":99,
+				"orientacion_inicio":1,			
+				"recorrido": [1,1,1,10,7,1,1,1,1,1,10,2,2,2,2,2,2,2,2,2,7,1,1],
+					"obstaculos": [[4,0], [7,5], [1,5], [0,6]],
+					"inicioFila": 3,
+					"inicioColumna": 1,
+					"finFila": 11,
+					"finColumna": 2
+			}]
+		};
+		
+		MAPAS.mapas[0].nombre = "Enviado";		
+		MAPAS.mapas[0].alto = mapa.cant_celdas_alto;		
+		MAPAS.mapas[0].ancho = mapa.cant_celdas_largo;		
+		MAPAS.mapas[0].orientacion_inicio = mapa.orientacion_inicio;
+				
+		MAPAS.mapas[0].inicioFila = mapa.celda_largada.fila;
+		MAPAS.mapas[0].inicioColumna = mapa.celda_largada.columna;		
+		MAPAS.mapas[0].finFila = mapa.celda_llegada.fila;
+		MAPAS.mapas[0].finColumna = mapa.celda_llegada.columna;
+		
+		//output.push(mapa.array_direcciones);
+		//MAPAS.mapas[0].recorrido = mapa.array_direcciones;		
+		MAPAS.mapas[0].recorrido = mapa.array_transformado;
+				
+		MAPAS.mapas[0].obstaculos = mapa.array_obstaculos;
+		
+		console.log(JSON.stringify(MAPAS));    
+        //console.log("Output PeerJS:" + JSON.stringify(output));
+        
+		connection.send(MAPAS);		
+    });
+}
 
 /* ToDo - BEGIN
  
