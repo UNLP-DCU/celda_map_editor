@@ -48,29 +48,35 @@ var Mapa = function(largo,alto)
     this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
     this.context = this.canvas[0].getContext('2d');
     
-    this.setDimensionMapa = function(){
-        this.cant_celdas_largo = document.getElementById('ancho').value;
-        this.cant_celdas_alto = document.getElementById('alto').value;
-        mapa.resetear();
-    }
-
     this.resetear = function(){
         jQuery("#mapa > canvas").remove();
-        this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
-        this.context = this.canvas[0].getContext('2d');
-        this.canvas.appendTo(jQuery('#mapa'));
-        this.celda_largada = this.celda_llegada = null;
         for(i = 0; i < this.cant_celdas_alto; i++){
             for(j = 0; j < this.cant_celdas_largo; j++){
-                this.celdas[i][j].tipo = "normal";
-                this.dibujarCelda(this.celdas[i][j]);
+                this.celdas[i][j] = null;
             }
         }
+        this.celda_largada = this.celda_llegada = null;
         this.camino = new Array();
         this.orientacion_inicio = null;
         this.array_direcciones = "";
         this.array_transformado = "";
         this.array_obstaculos = "";
+        this.dibujarMapa();
+    };
+    
+    
+    this.dibujarMapa = function(){
+        this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
+        this.context = this.canvas[0].getContext('2d');
+        this.canvas.appendTo(jQuery('#mapa'));
+        var id = 0;
+        for(i = 0; i < this.cant_celdas_alto; i++){
+            this.celdas[i] = new Array();
+            for(j = 0; j < this.cant_celdas_largo; j++){
+                this.celdas[i][j] = new Celda(id++, j, i);
+                this.dibujarCelda(this.celdas[i][j]);
+            }
+        }
     };
     
     this.toString = function(){
@@ -149,17 +155,6 @@ var Mapa = function(largo,alto)
 
         this.context.fillRect(desplazamiento_x, desplazamiento_y, this.tamanio_lado, this.tamanio_lado);
     }
-    
-    this.dibujarMapa = function(){
-        var id = 0;
-        for(i = 0; i < this.cant_celdas_alto; i++){
-            this.celdas[i] = new Array();
-            for(j = 0; j < this.cant_celdas_largo; j++){
-                this.celdas[i][j] = new Celda(id++, j, i);
-                this.dibujarCelda(this.celdas[i][j]);
-            }
-        }
-    };
 
     this.getCeldaPorPosicion = function(x, y)
     {
@@ -381,8 +376,7 @@ jQuery(document).ready(function(){
         alert("ERRORES EN PEER, se rompio todo. ABORTEN ABORTEEEEEEEEEEEEEEEEEENNNNNNNNNN"); 
     });
     
-    mapa = new Mapa(10,10);
-    mapa.canvas.appendTo(jQuery('#mapa'));
+    mapa = new Mapa(jQuery("#largo").val(), jQuery("#alto").val());
     mapa.dibujarMapa();
 });
 
