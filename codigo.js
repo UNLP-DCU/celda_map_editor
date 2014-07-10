@@ -61,6 +61,8 @@ var Mapa = function()
         this.array_direcciones = "";
         this.array_transformado = "";
         this.array_obstaculos = "";
+        this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
+        this.context = this.canvas[0].getContext('2d');
     };
     
     this.toString = function(){
