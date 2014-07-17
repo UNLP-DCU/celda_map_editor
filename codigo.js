@@ -24,11 +24,15 @@ var Celda = function(id, columna, fila)
     };
 };
 
-var Mapa = function(largo,alto)
+var Mapa = function(largo, alto, tamanio_pasos)
 {
+    this.nombre = "Sin nombre";
+    this.tamanio_pasos = tamanio_pasos;
+    this.largo = largo;
+    this.alto = alto;
     this.cant_celdas_largo = largo;
     this.cant_celdas_alto = alto;
-    this.tamanio_lado = 25;
+    this.tamanio_lado = 32 * tamanio_pasos;
     this.espacio_entre_celdas = 2;
     this.color_propio = '#DDD';
     this.color_camino = '#7EE';
@@ -45,11 +49,17 @@ var Mapa = function(largo,alto)
     this.array_transformado = "";
     this.array_obstaculos = "";
 
-    this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
-    this.context = this.canvas[0].getContext('2d');
+    this.crearCeldas = function(){
+        var id = 0;
+        for(i = 0; i < this.cant_celdas_alto; i++){
+            this.celdas[i] = new Array();
+            for(j = 0; j < this.cant_celdas_largo; j++){
+                this.celdas[i][j] = new Celda(id++, j, i);
+            }
+        }
+    }
     
     this.resetear = function(){
-        jQuery("#mapa > canvas").remove();
         for(i = 0; i < this.cant_celdas_alto; i++){
             for(j = 0; j < this.cant_celdas_largo; j++){
                 this.celdas[i][j] = null;
@@ -61,19 +71,68 @@ var Mapa = function(largo,alto)
         this.array_direcciones = "";
         this.array_transformado = "";
         this.array_obstaculos = "";
+        this.crearCeldas();
         this.dibujarMapa();
     };
     
+    this.cambiarLargo = function(largo){
+        var largo_viejo = this.cant_celdas_largo;
+        this.largo = largo;
+        this.calcularMedidas();
+        if(this.cant_celdas_largo < largo_viejo){ //Si saco columnas
+            for(var i = 0; i < this.cant_celdas_alto; i++)
+                for(var j = this.cant_celdas_largo; j > largo_viejo; j--)
+                    this.celdas[i][j] = null;
+        }else if(this.cant_celdas_largo > largo_viejo){ //Si agrego columnas
+            for(var i = 0; i < this.cant_celdas_alto; i++)
+                for(var j = largo_viejo; j < this.cant_celdas_largo; j++)
+                    this.celdas[i][j] = new Celda(this.celdas[i][j - 1].id + this.cant_celdas_alto, j, i);
+        }
+        
+        this.dibujarMapa();
+    }
+    
+    this.cambiarAlto = function(alto){
+        
+        var alto_viejo = this.cant_celdas_alto;
+        console.log("Alto viuejo: " + alto_viejo + " alto nuevo: " + alto);
+        this.alto = alto;
+        this.calcularMedidas();
+        if(this.cant_celdas_alto > alto_viejo){ //Si agrego filas
+            var id = this.celdas[alto_viejo - 1][this.cant_celdas_largo - 1].id;
+            console.log("id: " + id);
+            for(var i = alto_viejo; i < this.cant_celdas_alto; i++){
+                this.celdas[i] = new Array();
+                for(var j = 0; j < this.cant_celdas_largo; j++)
+                    this.celdas[i][j] = new Celda(++id, j, i);
+            }
+        }else if(this.cant_celdas_alto < alto_viejo){ //Si saco filas
+            for(var i = this.cant_celdas_alto; i < alto_viejo; i++)
+                this.celdas[i] = null;
+        }
+        
+        this.dibujarMapa();
+    }
+    
+    this.cambiarTamanioPasos = function(tamanio){
+        this.tamanio_pasos = tamanio;
+        this.dibujarMapa();
+    }
+    
+    this.calcularMedidas = function(){
+        this.cant_celdas_alto = Math.ceil(this.alto / this.tamanio_pasos);
+        this.cant_celdas_largo = Math.ceil(this.largo / this.tamanio_pasos);
+        this.tamanio_lado = 32 * this.tamanio_pasos;
+    }
     
     this.dibujarMapa = function(){
+        this.calcularMedidas();
+        jQuery("#mapa > canvas").remove();
         this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
         this.context = this.canvas[0].getContext('2d');
         this.canvas.appendTo(jQuery('#mapa'));
-        var id = 0;
         for(i = 0; i < this.cant_celdas_alto; i++){
-            this.celdas[i] = new Array();
             for(j = 0; j < this.cant_celdas_largo; j++){
-                this.celdas[i][j] = new Celda(id++, j, i);
                 this.dibujarCelda(this.celdas[i][j]);
             }
         }
@@ -313,13 +372,17 @@ var Mapa = function(largo,alto)
             this.orientacion_inicio = this.array_direcciones[0];
 
         }
-    }       
+    }
+    
+    //ponele que el constructor...
+    this.calcularMedidas();
+    this.crearCeldas();
+    this.dibujarMapa();
 };
     
 jQuery(document).ready(function(){
     
-    mapa = new Mapa(jQuery("#largo").val(), jQuery("#alto").val());
-    mapa.dibujarMapa();
+    mapa = new Mapa(jQuery("#largo").val(), jQuery("#alto").val(), jQuery("#tamanio_pasos").val());
 });
 
 var mapa;
@@ -380,7 +443,7 @@ function mandar_mapa(){
 			}]
 		};
 		
-		MAPAS.mapas[0].nombre = "Enviado";		
+		MAPAS.mapas[0].nombre = mapa.nombre;		
 		MAPAS.mapas[0].alto = mapa.cant_celdas_alto;		
 		MAPAS.mapas[0].ancho = mapa.cant_celdas_largo;		
 		MAPAS.mapas[0].orientacion_inicio = mapa.orientacion_inicio;
