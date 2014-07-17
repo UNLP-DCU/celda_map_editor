@@ -77,6 +77,30 @@ var Mapa = function(largo,alto)
                 this.dibujarCelda(this.celdas[i][j]);
             }
         }
+        
+        // CONTROLA EL EVENTO DE CLICK EN EL CANVAS
+        this.canvas.on('click', function(event)
+        {
+          celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
+
+              if (mapa.getMode() == "end") {
+                    mapa.definirLlegada(celda)
+                    return;
+              }
+              if (mapa.getMode() == "start") {
+                    mapa.definirLargada(celda);
+                    return;
+              }
+              if (mapa.getMode() == "manual") {
+                    aMap.selectManualCell(aCell.id);	
+                    return;
+              }
+              if (mapa.getMode() == "obstacles") {
+                    mapa.agregarObstaculo(celda);
+                    return;
+              }	 
+
+        });
     };
     
     this.toString = function(){
@@ -195,31 +219,6 @@ var Mapa = function(largo,alto)
         this.dibujarCelda(celda);
     };
 
-	// Nuevos metodos
-	// CONTROLA EL EVENTO DE CLICK EN EL CANVAS
-    this.canvas.on('click', function(event)
-    {
-      celda = mapa.getCeldaPorPosicion(event.offsetX, event.offsetY);
-	  	
-	  if (mapa.getMode() == "end") {
-  		mapa.definirLlegada(celda)
-  		return;
-	  }
-	  if (mapa.getMode() == "start") {
-		mapa.definirLargada(celda);
-  		return;
-	  }
-	  if (mapa.getMode() == "manual") {
-		aMap.selectManualCell(aCell.id);	
-  		return;
-	  }
-	  if (mapa.getMode() == "obstacles") {
-  		mapa.agregarObstaculo(celda);
-  		return;
-	  }	 
-	  
-	});
-
     this.getMode = function()
     {
             return this.mode;
@@ -228,14 +227,6 @@ var Mapa = function(largo,alto)
     this.setStart = function(){mapa.mode = "start";}
     this.setEnd = function(){mapa.mode = "end";}
     this.setObstacle = function(){mapa.mode = "obstacles";}
-
-    jQuery('body').keydown(function(event)
-    {
-        if (event.keyCode === 83)
-        {
-            result = mapa.resolve();
-        }
-    });
 
     this.procesarMetadatosCaminos = function () {
 
