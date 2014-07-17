@@ -16,6 +16,7 @@
         </header>
 
         <section id="contenido" style="width: -webkit-fit-content; width: -moz-fit-content; width: fit-content; margin: 0 auto;">
+            <input type="text" placeholder="Nombre del mapa" onchange="mapa.nombre = this.value;" style="text-align: center; width: 300px; margin: 0 auto 5px; display: -webkit-box; display: -moz-box; display: box">
             <div id="controles" style="width: 50px; float: right">
                 <img src="largada.png" alt="largada" draggable="true" width="50" height="50" onclick="mapa.setStart();" />
                 <img src="llegada.png" alt="llegada" draggable="true" width="50px" height="50px" onclick="mapa.setEnd();" />
@@ -32,9 +33,9 @@
                 <button onclick="mapa.setObstacle();">Colocar obstaculo</button>
                 -->
                 <form>
-                    <input type="number" name="quantity" min="5" max="60" value="15" id="largo" onchange="mapa.cant_celdas_largo = this.value; mapa.resetear()">
+                    <input type="number" name="quantity" min="5" max="60" value="15" id="largo" onchange="mapa.cant_celdas_largo = this.value; mapa.dibujarMapa()">
                     x
-                    <input type="number" name="quantity" min="5" max="40" value="10" id="alto" onchange="mapa.cant_celdas_alto = this.value; mapa.resetear()">
+                    <input type="number" name="quantity" min="5" max="40" value="10" id="alto" onchange="mapa.cant_celdas_alto = this.value; mapa.dibujarMapa()">
                 </form>	
                 <!-- ########################### -->
             </div>
