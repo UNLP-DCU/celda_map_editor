@@ -51,6 +51,7 @@ var Mapa = function(largo,alto)
     this.resetear = function(){
         jQuery("#mapa > canvas").remove();
         for(i = 0; i < this.cant_celdas_alto; i++){
+			this.celdas[i] = new Array();
             for(j = 0; j < this.cant_celdas_largo; j++){
                 this.celdas[i][j] = null;
             }
