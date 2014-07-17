@@ -61,7 +61,6 @@ var Mapa = function(largo, alto, tamanio_pasos)
     
     this.resetear = function(){
         for(i = 0; i < this.cant_celdas_alto; i++){
-			this.celdas[i] = new Array();
             for(j = 0; j < this.cant_celdas_largo; j++){
                 this.celdas[i][j] = null;
             }
@@ -80,6 +79,7 @@ var Mapa = function(largo, alto, tamanio_pasos)
         var largo_viejo = this.cant_celdas_largo;
         this.largo = largo;
         this.calcularMedidas();
+        console.log("Largo viuejo: " + largo_viejo + " largo nuevo: " + this.cant_celdas_largo);
         if(this.cant_celdas_largo < largo_viejo){ //Si saco columnas
             for(var i = 0; i < this.cant_celdas_alto; i++)
                 for(var j = this.cant_celdas_largo; j > largo_viejo; j--)
@@ -96,10 +96,12 @@ var Mapa = function(largo, alto, tamanio_pasos)
     this.cambiarAlto = function(alto){
         
         var alto_viejo = this.cant_celdas_alto;
-        console.log("Alto viuejo: " + alto_viejo + " alto nuevo: " + alto);
         this.alto = alto;
         this.calcularMedidas();
+        console.log("Alto viuejo: " + alto_viejo + " alto nuevo: " + this.cant_celdas_alto);
         if(this.cant_celdas_alto > alto_viejo){ //Si agrego filas
+            if(this.celdas[alto_viejo - 1][this.cant_celdas_largo - 1] == null)
+                this.cant_celdas_largo--;
             var id = this.celdas[alto_viejo - 1][this.cant_celdas_largo - 1].id;
             console.log("id: " + id);
             for(var i = alto_viejo; i < this.cant_celdas_alto; i++){
@@ -116,18 +118,28 @@ var Mapa = function(largo, alto, tamanio_pasos)
     }
     
     this.cambiarTamanioPasos = function(tamanio){
+        var largo_viejo = this.cant_celdas_largo;
+        var alto_viejo = this.cant_celdas_alto;
         this.tamanio_pasos = tamanio;
+        this.calcularMedidas();
+        if(alto_viejo != this.cant_celdas_alto){
+            this.cant_celdas_alto = alto_viejo;
+            this.cambiarAlto(this.alto);
+        }
+        if(largo_viejo != this.cant_celdas_largo) {
+            this.cant_celdas_largo = largo_viejo;
+            this.cambiarLargo(this.largo);
+        }
         this.dibujarMapa();
     }
     
     this.calcularMedidas = function(){
         this.cant_celdas_alto = Math.ceil(this.alto / this.tamanio_pasos);
         this.cant_celdas_largo = Math.ceil(this.largo / this.tamanio_pasos);
-        this.tamanio_lado = 32 * this.tamanio_pasos;
+        this.tamanio_lado = Math.ceil(32 * this.tamanio_pasos);
     }
     
     this.dibujarMapa = function(){
-        this.calcularMedidas();
         jQuery("#mapa > canvas").remove();
         this.canvas = jQuery('<canvas width="' + this.cant_celdas_largo * (this.tamanio_lado + this.espacio_entre_celdas) + 'px" height="' + this.cant_celdas_alto * (this.tamanio_lado + this.espacio_entre_celdas) + 'px"></canvas>');
         this.context = this.canvas[0].getContext('2d');
