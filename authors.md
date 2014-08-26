@@ -6,7 +6,8 @@ _el orden no importa_
 - federico rufrancos <fde.ruf@gmail.com>
 - joaquin547 <joaquin547@hotmail.com>
 - joaquin547 <thestrokesbersuit@hotmail.com> 
-- Rodsevich <neton_12@hotmail.com> 
+- Rodsevich <neton_12@hotmail.com>
+- daniffig <daniffig@gmail.com>
 
 
 ## Documento generado usando:
